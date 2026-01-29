@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { z } from "zod";
 
-const isProd = process.env.NODE_ENV === "production";
+//const isProd = process.env.NODE_ENV === "production";
 const isDev = process.env.NODE_ENV === "development";
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -9,8 +9,6 @@ if (isDev) {
   dotenv.config({ path: ".env.development" });
 } else if (isTestEnv) {
   dotenv.config({ path: ".env.test" });
-} else if (isProd) {
-  dotenv.config({ path: ".env.production" });
 }
 
 const envSchema = z.object({
