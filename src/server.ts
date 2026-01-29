@@ -17,5 +17,3 @@ app.get("/", (_req, res) => {
 });
 
 export { app };
-
-export default app;
