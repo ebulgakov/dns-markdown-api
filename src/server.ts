@@ -1,7 +1,7 @@
 import express from "express";
-import cors from "cors";
-
-import { env } from "#env.ts";
+// import cors from "cors";
+//
+// import { env } from "#env.ts";
 
 const app = express();
 
