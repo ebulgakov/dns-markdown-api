@@ -1,11 +1,15 @@
 import express from 'express';
 const app = express();
-const port = process.env.PORT ?? "4000";
 
 app.get('/', (_req, res) => {
   res.json({ message: 'Hello from Express on Vercel!' });
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT ?? "4000";
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+  });
+}
+
+export default app;
