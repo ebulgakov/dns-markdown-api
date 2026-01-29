@@ -5,23 +5,12 @@ const isProd = process.env.NODE_ENV === "production";
 const isDev = process.env.NODE_ENV === "development";
 const isTestEnv = process.env.NODE_ENV === "test";
 
-let config = { ...dotenv.config({ path: ".env" }).parsed };
-
 if (isDev) {
-  config = {
-    ...config,
-    ...dotenv.config({ path: ".env.development" }).parsed
-  };
+  dotenv.config({ path: ".env.development" });
 } else if (isTestEnv) {
-  config = {
-    ...config,
-    ...dotenv.config({ path: ".env.test" }).parsed
-  };
+  dotenv.config({ path: ".env.test" });
 } else if (isProd) {
-  config = {
-    ...config,
-    ...dotenv.config({ path: ".env.production" }).parsed
-  };
+  dotenv.config({ path: ".env.production" });
 }
 
 const envSchema = z.object({
@@ -48,7 +37,7 @@ export type Env = z.infer<typeof envSchema>;
 let env: Env;
 
 try {
-  env = envSchema.parse(config);
+  env = envSchema.parse(process.env);
 } catch (error) {
   if (error instanceof z.ZodError) {
     console.error("❌ Invalid environment variables:");
