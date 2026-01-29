@@ -1,17 +1,16 @@
-import { env } from "#env.ts";
 import express from "express";
 
 const app = express();
 
 app.get("/", (_req, res) => {
-  res.json({ message: "Hello from Express on Vercel!!" });
+  res.json({ message: "Hello from Bun on Vercel!" });
 });
 
-if (env.NODE_ENV !== "production") {
-  const port = env.PORT ?? "4000";
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-  });
+// Для локальной разработки через `bun run dev`
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 }
 
+// Обязательно для Vercel
 export default app;
