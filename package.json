@@ -1,0 +1,20 @@
+{
+  "name": "dns-markdown-api",
+  "module": "src/index.ts",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "type-check": "bunx tsc --noEmit",
+    "start": "bun src/index.ts"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
