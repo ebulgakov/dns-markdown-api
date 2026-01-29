@@ -52,6 +52,7 @@ try {
 
     process.exit(1);
   }
+  console.error(error);
   throw error;
 }
 
