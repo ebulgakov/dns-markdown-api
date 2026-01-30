@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { env, isDev, isTestEnv } from "../env";
 
 import { authMiddleware } from "./middleware/auth-middleware";
+import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import priceListRoutes from "./pricelist/pricelist-routes";
 
 import type { NextFunction, Request, Response } from "express";
@@ -26,6 +27,8 @@ app.use(
 
 app.use(helmet());
 app.use(express.json());
+
+app.use(ensureDbConnectionMiddleware);
 
 // Health check endpoint
 app.get("/health", (_req, res) => {
