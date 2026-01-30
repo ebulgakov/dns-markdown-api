@@ -25,12 +25,6 @@
 
     // Make code clean
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-
-    // Custom paths
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./*"]
-    }
+    "noUnusedParameters": true
   }
 }
