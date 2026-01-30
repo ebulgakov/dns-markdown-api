@@ -8,7 +8,7 @@ import { env, isDev, isTestEnv } from "../env";
 import { authMiddleware } from "./middleware/auth-middleware";
 import priceListRoutes from "./pricelist/pricelist-routes";
 
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 const app = express();
 
@@ -40,7 +40,8 @@ app.use("/api", authMiddleware);
 
 app.use("/api/pricelist", priceListRoutes);
 
-app.use((err: Error, _req: Request, res: Response) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack);
   res
     .status(500)
