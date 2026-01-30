@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 import Goods from "./goods";
 
-export const priceListSchema = new mongoose.Schema(
+const priceListSchema = new mongoose.Schema(
   {
     city: {
       type: String,
