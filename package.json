@@ -9,7 +9,8 @@
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "prettier": "^3.8.1"
   },
   "dependencies": {
     "express": "^5.2.1"
