@@ -1,6 +1,6 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
-import { env } from "../env";
+import { env, isDev } from "../env";
 
 const app = express();
 
@@ -32,16 +32,20 @@ app.get("/api", (_req, res) => {
   });
 });
 
-app.get("/", (_req, res) => {
-  res.json({
-    status: "ok",
-    message: "Server is running"
+// Health check endpoint
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    service: "DNS Markdown API"
   });
 });
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ error: "Internal Server Error" });
+  res
+    .status(500)
+    .json({ error: "Internal Server Error", ...(isDev() && { details: err.message }) });
 });
 
 export default app;
