@@ -1,9 +1,9 @@
 import { Router } from "express";
 
 import { cacheAdd, cacheGet } from "../../cache";
-import { Pricelist } from "../../db/models/pricelist.ts";
+import { Pricelist } from "../../db/models/pricelist";
 
-import type { PriceListDate } from "../../types/pricelist.ts";
+import type { PriceListDate } from "../../types/pricelist";
 
 const router = Router();
 
