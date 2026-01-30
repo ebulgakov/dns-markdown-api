@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import Goods from "./goods.ts";
+import Goods from "./goods";
 
 export const priceListSchema = new mongoose.Schema(
   {

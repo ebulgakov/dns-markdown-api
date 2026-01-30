@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { env } from "../env.ts";
+import { env } from "../env";
 
 global.mongoose = global.mongoose || {
   conn: null,
