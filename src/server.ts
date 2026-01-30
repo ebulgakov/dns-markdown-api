@@ -1,16 +1,51 @@
+import cors from "cors";
 import express from "express";
-import { env } from "../env";
+import helmet from "helmet";
+import morgan from "morgan";
+
+import { env, isDev, isTestEnv } from "../env";
+
+import { authMiddleware } from "./middleware/auth-middleware";
+import priceListRoutes from "./pricelist/pricelist-routes";
+
+import type { NextFunction, Request, Response } from "express";
 
 const app = express();
 
-app.get("/", (_req, res) => {
-  res.json({
-    message: "Hello from Express on Vercel!",
-    var: {
-      NODE_ENV: env.NODE_ENV
-    },
-    env: env
+// Add logging middleware
+app.use(morgan("dev", { skip: () => isTestEnv() }));
+
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true
+  })
+);
+
+app.use(helmet());
+app.use(express.json());
+
+// Health check endpoint
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    service: "DNS Markdown API"
   });
+});
+
+app.use("/api", authMiddleware);
+
+app.use("/api/pricelist", priceListRoutes);
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err.stack);
+  res
+    .status(500)
+    .json({ error: "Internal Server Error", ...(isDev() && { details: err.message }) });
 });
 
 export default app;

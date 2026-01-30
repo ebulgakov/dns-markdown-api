@@ -1,19 +1,20 @@
 import * as dotenv from "dotenv";
 import { z } from "zod";
 
-const isProd = process.env.NODE_ENV === "production";
-const isDev = process.env.NODE_ENV === "development";
-const isTestEnv = process.env.NODE_ENV === "test";
+export const isProd = () => process.env.NODE_ENV === "production";
+export const isDev = () => process.env.NODE_ENV === "development";
+export const isTestEnv = () => process.env.NODE_ENV === "test";
 
-if (isDev) {
+if (isDev()) {
   dotenv.config({ path: ".env.development" });
-} else if (isTestEnv) {
+} else if (isTestEnv()) {
   dotenv.config({ path: ".env.test" });
-} else if (isProd) {
+} else if (isProd()) {
   dotenv.config({ path: ".env.production" });
 }
 
 const envSchema = z.object({
+  API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
   PORT: z.string().default("4000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
