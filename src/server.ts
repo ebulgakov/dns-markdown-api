@@ -1,5 +1,5 @@
 import express from "express";
-import config from "#config.ts";
+import { env } from "../env";
 
 const app = express();
 
@@ -7,9 +7,9 @@ app.get("/", (_req, res) => {
   res.json({
     message: "Hello from Express on Vercel!",
     var: {
-      NODE_ENV: process.env.NODE_ENV,
+      NODE_ENV: env.NODE_ENV
     },
-    config: config,
+    env: env
   });
 });
 
