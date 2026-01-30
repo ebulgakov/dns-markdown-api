@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import { Pricelist } from "../../db/models/pricelist";
 
 const router = Router();

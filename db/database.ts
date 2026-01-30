@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 import { env } from "../env.ts";
 
 global.mongoose = global.mongoose || {

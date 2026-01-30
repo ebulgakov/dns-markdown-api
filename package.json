@@ -3,6 +3,8 @@
   "module": "src/index.ts",
   "scripts": {
     "dev": "bun --watch src/index.ts",
+    "lint:fix": "bunx eslint --fix .",
+    "lint": "bunx eslint",
     "type-check": "bunx tsc --noEmit",
     "start": "bun src/index.ts"
   },
@@ -12,7 +14,11 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
-    "prettier": "^3.8.1"
+    "eslint": "^9.39.2",
+    "eslint-plugin-import": "^2.32.0",
+    "jiti": "^2.6.1",
+    "prettier": "^3.8.1",
+    "typescript-eslint": "^8.54.0"
   },
   "dependencies": {
     "cors": "^2.8.6",

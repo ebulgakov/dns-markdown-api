@@ -1,6 +1,8 @@
-import app from "./server.ts";
-import { env } from "../env";
 import { dbConnect, dbDisconnect } from "../db/database.ts";
+import { env } from "../env";
+
+import app from "./server.ts";
+
 import type { Server } from "http";
 
 dbConnect()

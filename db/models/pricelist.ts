@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 import priceListSchema from "../schemas/pricelist.ts";
 
 import type { PriceList } from "../../types/pricelist.ts";

@@ -1,11 +1,14 @@
-import express from "express";
-import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+
 import { env, isDev, isTestEnv } from "../env";
+
 import { authMiddleware } from "./middleware/auth-middleware";
 import priceListRoutes from "./pricelist/pricelist-routes";
+
+import type { Request, Response } from "express";
 
 const app = express();
 
@@ -37,7 +40,7 @@ app.use("/api", authMiddleware);
 
 app.use("/api/pricelist", priceListRoutes);
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response) => {
   console.error(err.stack);
   res
     .status(500)
