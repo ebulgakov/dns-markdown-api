@@ -7,7 +7,7 @@ import type { PriceListDate } from "../../types/pricelist.ts";
 
 const router = Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/list", async (req, res, next) => {
   try {
     const city = req.query.city as string;
     if (!city) return res.status(400).send("city is required");
@@ -31,7 +31,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/id/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
     if (!id) return res.status(400).send("id is required");

@@ -14,6 +14,7 @@ if (isDev()) {
 }
 
 const envSchema = z.object({
+  CITY: z.string().default("samara"),
   API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
   PORT: z.string().default("4000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
