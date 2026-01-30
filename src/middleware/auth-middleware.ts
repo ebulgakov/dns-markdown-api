@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { env } from "../../env";
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
@@ -9,7 +10,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
   const token = authHeader.split(" ")[1];
 
-  if (token !== process.env.AUTH_SECRET) {
+  if (token !== env.API_AUTH_SECRET) {
     return res.json({ error: "Unauthorized" }).status(401);
   }
 

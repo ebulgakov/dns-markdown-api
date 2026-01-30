@@ -1,11 +1,16 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { env, isDev } from "../env";
+import helmet from "helmet";
+import morgan from "morgan";
+import { env, isDev, isTestEnv } from "../env";
 import { authMiddleware } from "./middleware/auth-middleware";
 import priceListRoutes from "./pricelist/pricelist-routes";
 
 const app = express();
+
+// Add logging middleware
+app.use(morgan("dev", { skip: () => isTestEnv() }));
 
 app.use(
   cors({
@@ -15,6 +20,9 @@ app.use(
     credentials: true
   })
 );
+
+app.use(helmet());
+app.use(express.json());
 
 // Health check endpoint
 app.get("/health", (_req, res) => {
