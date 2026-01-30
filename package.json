@@ -5,6 +5,7 @@
     "dev": "bun --watch src/index.ts",
     "lint:fix": "bunx eslint --fix .",
     "lint": "bunx eslint",
+    "test": "bun test",
     "type-check": "bunx tsc --noEmit",
     "start": "bun src/index.ts"
   },
