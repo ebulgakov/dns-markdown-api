@@ -31,4 +31,26 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.get("/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!id) return res.status(400).send("id is required");
+
+    const key = `archive:item:${String(id)}}`;
+    const cached = await cacheGet<PriceListDate>(key);
+    if (cached) res.json(cached);
+
+    const priceList = await Pricelist.findOne({ _id: id });
+    if (!priceList) return res.status(404).send("Archived price list not found");
+
+    const plainPriceList = JSON.stringify(priceList);
+
+    await cacheAdd(key, plainPriceList); // no expiration
+
+    res.json(JSON.parse(plainPriceList));
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
