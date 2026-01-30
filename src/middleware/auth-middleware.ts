@@ -12,7 +12,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   const token = authHeader.split(" ")[1];
 
   if (token !== env.API_AUTH_SECRET) {
-    return res.json({ error: "Unauthorized", key: env.API_AUTH_SECRET }).status(401);
+    return res.json({ error: "Unauthorized" }).status(401);
   }
 
   next();
