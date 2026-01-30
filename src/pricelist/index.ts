@@ -12,7 +12,7 @@ router.get("/", async (req, res, next) => {
     const city = req.query.city as string;
     if (!city) return res.status(400).send("city is required");
 
-    const key = `pricelist:last:${String(city)}`;
+    const key = `daily:pricelist:last:${String(city)}`;
     const cached = await cacheGet<PriceList>(key);
     if (cached) res.json(cached);
 
@@ -25,7 +25,7 @@ router.get("/", async (req, res, next) => {
 
     res.json(JSON.parse(plainPriceList));
   } catch (error) {
-    next(error); // Передаем ошибку в middleware для обработки ошибок
+    next(error);
   }
 });
 
