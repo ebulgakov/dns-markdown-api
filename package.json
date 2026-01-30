@@ -2,7 +2,7 @@
   "name": "dns-markdown-api",
   "module": "src/index.ts",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
+    "dev": "NODE_ENV=development bun --watch src/index.ts",
     "type-check": "bunx tsc --noEmit",
     "start": "bun src/index.ts"
   },
