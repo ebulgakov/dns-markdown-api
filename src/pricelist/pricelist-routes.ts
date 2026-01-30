@@ -12,7 +12,11 @@ router.get("/", async (req, res, next) => {
     const priceList = await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } });
     if (!priceList) return res.status(404).send("Price list not found");
 
-    res.json(priceList);
+    const plainPriceList = JSON.stringify(priceList);
+
+    // cacheAdd..
+
+    res.json(JSON.parse(plainPriceList));
   } catch (error) {
     next(error); // Передаем ошибку в middleware для обработки ошибок
   }
