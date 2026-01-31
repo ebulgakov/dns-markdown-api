@@ -9,7 +9,7 @@ const redis = new Redis({
   token: env.UPSTASH_REDIS_REST_TOKEN
 });
 
-async function cacheAdd(key: string, value: string, options: SetCommandOptions = {}) {
+async function cacheAdd<T>(key: string, value: T, options: SetCommandOptions = {}) {
   await redis.set(key, value, options);
 }
 

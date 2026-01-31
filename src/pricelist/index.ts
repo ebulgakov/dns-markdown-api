@@ -19,7 +19,7 @@ router.get("/", async (req, res, next) => {
     const priceList = await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } });
     if (!priceList) return res.status(404).send("Price list not found");
 
-    await cacheAdd(key, JSON.stringify(priceList), { ex: 60 * 60 * 24 }); // 24 hours
+    await cacheAdd<PriceListType>(key, priceList, { ex: 60 * 60 * 24 }); // 24 hours
 
     res.json(JSON.parse(priceList));
   } catch (error) {
@@ -33,16 +33,16 @@ router.get("/list", async (req, res, next) => {
     if (!city) return res.status(400).send("city is required");
 
     const key = `daily:archive:list:${String(city)}`;
-    const cached = await cacheGet<PriceListDate>(key);
+    const cached = await cacheGet<PriceListDate[]>(key);
     if (cached) return res.json(cached);
 
-    const priceLists = await Pricelist.find({ city }, {}, { sort: { updatedAt: 1 } })
+    const priceLists = (await Pricelist.find({ city }, {}, { sort: { updatedAt: 1 } })
       .select("createdAt")
       .lean()
-      .exec();
+      .exec()) as PriceListDate[];
     if (!priceLists) return res.status(404).send("No archived price lists found");
 
-    await cacheAdd(key, JSON.stringify(priceLists), { ex: 60 * 60 * 24 }); // 24 hours
+    await cacheAdd<PriceListDate[]>(key, priceLists, { ex: 60 * 60 * 24 }); // 24 hours
 
     res.json(priceLists);
   } catch (error) {
@@ -55,14 +55,14 @@ router.get("/id/:id", async (req, res, next) => {
     const id = req.params.id;
     if (!id) return res.status(400).send("id is required");
 
-    const key = `archive:item:${String(id)}}`;
-    const cached = await cacheGet<PriceListDate>(key);
+    const key = `archive:item:${String(id)}`;
+    const cached = await cacheGet<PriceListType>(key);
     if (cached) return res.json(cached);
 
-    const priceList = await Pricelist.findOne({ _id: id }).lean().exec();
+    const priceList = (await Pricelist.findOne({ _id: id }).lean().exec()) as PriceListType;
     if (!priceList) return res.status(404).send("Archived price list not found");
 
-    await cacheAdd(key, JSON.stringify(priceList)); // no expiration
+    await cacheAdd<PriceListType>(key, priceList); // no expiration
 
     res.json(priceList);
   } catch (error) {

@@ -59,7 +59,7 @@ router.get("/link", async (req, res, next) => {
       status
     };
 
-    await cacheAdd(key, JSON.stringify(payload), { ex: 60 * 60 * 24 }); // 24 hours
+    await cacheAdd<ProductPayload>(key, payload, { ex: 60 * 60 * 24 }); // 24 hours
 
     res.json(payload);
   } catch (error) {
