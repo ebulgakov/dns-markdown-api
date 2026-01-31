@@ -39,7 +39,9 @@ router.get("/link", async (req, res, next) => {
       { city: product.city },
       {},
       { sort: { updatedAt: -1 } }
-    )) as PriceListType;
+    )
+      .lean()
+      .exec()) as PriceListType;
     const flatCatalog = priceList?.positions.flatMap(position => position.items);
     const ifExists = flatCatalog.find(item => item.link === link);
 
