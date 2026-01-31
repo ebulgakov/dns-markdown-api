@@ -11,3 +11,10 @@ To run:
 ```bash
 bun run src/index.ts
 ```
+
+## Technologies
+
+* Bun
+* MongoDB
+* Typescript
+* Redis

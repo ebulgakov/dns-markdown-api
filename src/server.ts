@@ -11,6 +11,7 @@ import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middlew
 import priceListRoutes from "./pricelist";
 import productsRoutes from "./products";
 import userRoutes from "./user";
+import fvoritesRoutes from "./favorites";
 
 import type { NextFunction, Request, Response } from "express";
 
@@ -48,6 +49,7 @@ app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/analysis", analysisRoutes);
+app.use("/api/favorites", fvoritesRoutes);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
