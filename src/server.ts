@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -14,6 +15,8 @@ import priceListRoutes from "./pricelist";
 import productsRoutes from "./products";
 import userRoutes from "./user";
 import userSectionsRoutes from "./user-sections";
+
+import "../instrument";
 
 import type { NextFunction, Request, Response } from "express";
 
@@ -58,6 +61,8 @@ app.use("/api/user/sections", userSectionsRoutes);
 app.use("/api/analysis", analysisRoutes);
 
 app.use("/clerk", clerkRoutes);
+
+Sentry.setupExpressErrorHandler(app);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
