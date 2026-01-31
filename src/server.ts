@@ -5,6 +5,7 @@ import morgan from "morgan";
 
 import { env, isDev, isTestEnv } from "../env";
 
+import analysisRoutes from "./analysis";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import priceListRoutes from "./pricelist";
@@ -46,6 +47,7 @@ app.use("/api", authMiddleware);
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/analysis", analysisRoutes);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
