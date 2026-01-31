@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { User } from "../../db/models/user.ts";
+import { User } from "../../db/models/user";
 
 const router = Router();
 

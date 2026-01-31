@@ -14,6 +14,9 @@ if (isDev()) {
 }
 
 const envSchema = z.object({
+  CLERK_WEBHOOK_SIGNING_SECRET: z
+    .string()
+    .min(10, "CLERK_WEBHOOK_SIGNING_SECRET must be at least 10 characters long"),
   CITY: z.string().default("samara"),
   API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
   PORT: z.string().default("4000"),

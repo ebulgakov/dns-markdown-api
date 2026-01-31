@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { User } from "../../db/models/user";
 
-import type { UserNotifications } from "../../types/user.ts";
+import type { UserNotifications } from "../../types/user";
 
 const router = Router();
 
