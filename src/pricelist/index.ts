@@ -25,7 +25,7 @@ router.get("/", async (req, res, next) => {
 
     await cacheAdd<PriceListType>(key, priceList, { ex: 60 * 60 * 24 }); // 24 hours
 
-    res.json(JSON.parse(priceList));
+    res.json(priceList);
   } catch (error) {
     next(error);
   }
