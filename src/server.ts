@@ -6,12 +6,14 @@ import morgan from "morgan";
 import { env, isDev, isTestEnv } from "../env";
 
 import analysisRoutes from "./analysis";
+import clerkRoutes from "./clerk";
+import favoritesRoutes from "./favorites";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import priceListRoutes from "./pricelist";
 import productsRoutes from "./products";
 import userRoutes from "./user";
-import fvoritesRoutes from "./favorites";
+import userSectionsRoutes from "./user-sections";
 
 import type { NextFunction, Request, Response } from "express";
 
@@ -32,6 +34,9 @@ app.use(
 app.use(helmet());
 app.use(express.json());
 
+// Use a raw body parser for the Cleak webhook route
+app.use("/clerk/create-user", express.raw({ type: "application/json" }));
+
 app.use(ensureDbConnectionMiddleware);
 
 // Health check endpoint
@@ -48,8 +53,11 @@ app.use("/api", authMiddleware);
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/user/favorites", favoritesRoutes);
+app.use("/api/user/sections", userSectionsRoutes);
 app.use("/api/analysis", analysisRoutes);
-app.use("/api/favorites", fvoritesRoutes);
+
+app.use("/clerk", clerkRoutes);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
