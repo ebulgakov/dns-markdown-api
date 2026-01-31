@@ -3,7 +3,11 @@ import { Router } from "express";
 import { cacheAdd, cacheGet } from "../../cache";
 import { Pricelist } from "../../db/models/pricelist";
 
-import type { PriceList as PriceListType, PriceListDate } from "../../types/pricelist";
+import type {
+  PriceList as PriceListType,
+  PriceListDate,
+  PriceListsArchiveCount
+} from "../../types/pricelist";
 
 const router = Router();
 
@@ -45,6 +49,35 @@ router.get("/list", async (req, res, next) => {
     await cacheAdd<PriceListDate[]>(key, priceLists, { ex: 60 * 60 * 24 }); // 24 hours
 
     res.json(priceLists);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/products-count", async (req, res, next) => {
+  try {
+    const city = req.query.city as string;
+    if (!city) return res.status(400).send("city is required");
+
+    const key = `daily:archive:products-count:${String(city)}`;
+    const cached = await cacheGet<PriceListsArchiveCount[]>(key);
+    if (cached) return res.json(cached);
+
+    const priceLists = (await Pricelist.find({ city }, {}, { sort: { updatedAt: 1 } })
+      .lean()
+      .exec()) as PriceListType[];
+    if (!priceLists) return res.status(404).send("No archived price lists found");
+
+    const productsCountByDates: PriceListsArchiveCount[] = priceLists.map(priceList => {
+      return {
+        date: priceList.createdAt,
+        count: priceList.positions.flatMap(position => position.items).length
+      };
+    });
+
+    await cacheAdd<PriceListsArchiveCount[]>(key, productsCountByDates, { ex: 60 * 60 * 24 }); // 24 hours
+
+    res.json(productsCountByDates);
   } catch (error) {
     next(error);
   }

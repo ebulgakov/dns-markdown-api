@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { cacheAdd, cacheGet } from "../../cache";
 import { AnalysisData } from "../../db/models/analysis-data";
-import { Pricelist } from "../../db/models/pricelist.ts";
+import { Pricelist } from "../../db/models/pricelist";
 
 import type { AnalysisData as AnalysisDataType } from "../../types/analysis-data";
 import type { DiffHistory } from "../../types/analysis-diff";
