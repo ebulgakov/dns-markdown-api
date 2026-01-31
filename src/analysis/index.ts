@@ -2,13 +2,15 @@ import { Router } from "express";
 
 import { cacheAdd, cacheGet } from "../../cache";
 import { AnalysisDiff } from "../../db/models/analysis-diff";
-import { Pricelist } from "../../db/models/pricelist.ts";
+import { Pricelist } from "../../db/models/pricelist";
+import { Reports } from "../../db/models/reports";
 
 import type {
   AnalysisDiff as AnalysisDiffType,
   AnalysisDiffReport
 } from "../../types/analysis-diff";
-import type { PriceList as PriceListType, PriceListsArchiveCount } from "../../types/pricelist.ts";
+import type { PriceList as PriceListType, PriceListsArchiveCount } from "../../types/pricelist";
+import type { ReportsResponse } from "../../types/reports";
 
 const router = Router();
 
@@ -29,6 +31,30 @@ router.get("/last-diff", async (req, res, next) => {
     await cacheAdd<AnalysisDiffType>(key, diff, { ex: 60 * 60 * 24 }); // 24 hours
 
     res.json(diff);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/reports", async (req, res, next) => {
+  try {
+    const city = req.query.city as string;
+    if (!city) return res.status(400).send("city is required");
+
+    const key = `daily:analysis:reports:${String(city)}`;
+    const cached = await cacheGet<ReportsResponse>(key);
+    if (cached) return res.json(cached);
+
+    const reports = (await Reports.find(
+      { city },
+      {},
+      { sort: { dateAdded: -1 }, limit: 30 }
+    )) as ReportsResponse;
+    if (!reports) return res.status(404).send("Analysis reports not found");
+
+    await cacheAdd<ReportsResponse>(key, reports, { ex: 60 * 60 * 24 }); // 24 hours
+
+    res.json(reports);
   } catch (error) {
     next(error);
   }
