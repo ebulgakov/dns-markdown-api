@@ -6,8 +6,8 @@ import morgan from "morgan";
 
 import { env, isDev, isTestEnv } from "../env";
 
-import analysisRoutes from "./analysis";
-import clerkRoutes from "./clerk";
+import analysisRoutes from "./analysis-routes";
+import clerkRoutes from "./clerk-routes";
 import favoritesRoutes from "./favorites";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
