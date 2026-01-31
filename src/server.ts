@@ -5,11 +5,11 @@ import morgan from "morgan";
 
 import { env, isDev, isTestEnv } from "../env";
 
+import analysisRoutes from "./analysis";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import priceListRoutes from "./pricelist";
 import productsRoutes from "./products";
-import analysisRoutes from "./analysis";
 import userRoutes from "./user";
 
 import type { NextFunction, Request, Response } from "express";
