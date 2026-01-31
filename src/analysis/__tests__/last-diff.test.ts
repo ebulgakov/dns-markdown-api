@@ -53,9 +53,9 @@ describe("lastAnalysisDiffHandler", () => {
   });
 
   test("should return cached data if it exists", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     const mockDiff: AnalysisDiffType = {
-      city: "Moscow",
+      city: "TestCity",
       dateAdded: `${new Date()}`,
       newItems: [],
       removedItems: [],
@@ -66,13 +66,13 @@ describe("lastAnalysisDiffHandler", () => {
 
     await lastAnalysisDiffHandler(req as Request, res as Response, next);
 
-    expect(cacheGet).toHaveBeenCalledWith("daily:analysis:last:Moscow");
+    expect(cacheGet).toHaveBeenCalledWith("daily:analysis:last:TestCity");
     expect(json).toHaveBeenCalledWith(mockDiff);
     expect(findOne).not.toHaveBeenCalled();
   });
 
   test("should return 404 if no diff found in db", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     exec.mockResolvedValueOnce(null);
 
     await lastAnalysisDiffHandler(req as Request, res as Response, next);
@@ -82,9 +82,9 @@ describe("lastAnalysisDiffHandler", () => {
   });
 
   test("should fetch from db, cache it, and return it", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     const mockDiff: AnalysisDiffType = {
-      city: "Moscow",
+      city: "TestCity",
       dateAdded: "",
       newItems: [],
       removedItems: [],
@@ -95,17 +95,17 @@ describe("lastAnalysisDiffHandler", () => {
 
     await lastAnalysisDiffHandler(req as Request, res as Response, next);
 
-    expect(findOne).toHaveBeenCalledWith({ city: "Moscow" }, {}, { sort: { dateAdded: -1 } });
+    expect(findOne).toHaveBeenCalledWith({ city: "TestCity" }, {}, { sort: { dateAdded: -1 } });
     expect(lean).toHaveBeenCalled();
     expect(exec).toHaveBeenCalled();
-    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:last:Moscow", mockDiff, {
+    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:last:TestCity", mockDiff, {
       ex: 60 * 60 * 24
     });
     expect(json).toHaveBeenCalledWith(mockDiff);
   });
 
   test("should call next with error if db query fails", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     const error = new Error("DB error");
     exec.mockRejectedValueOnce(error);
 

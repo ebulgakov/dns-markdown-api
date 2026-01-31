@@ -50,18 +50,18 @@ describe("totalUniqProductsCountHandler", () => {
   });
 
   test("should return cached data if it exists", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     cacheGet.mockResolvedValueOnce(123);
 
     await totalUniqProductsCountHandler(req as Request, res as Response, next);
 
-    expect(cacheGet).toHaveBeenCalledWith("daily:analysis:uniq-count:Moscow");
+    expect(cacheGet).toHaveBeenCalledWith("daily:analysis:uniq-count:TestCity");
     expect(res.send).toHaveBeenCalledWith(123);
     expect(find).not.toHaveBeenCalled();
   });
 
   test("should return 404 if no data found in db", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     exec.mockResolvedValueOnce(null);
 
     await totalUniqProductsCountHandler(req as Request, res as Response, next);
@@ -71,36 +71,36 @@ describe("totalUniqProductsCountHandler", () => {
   });
 
   test("should calculate unique count, cache it, and return it", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     const mockData = [{ link: "link1" }, { link: "link2" }, { link: "link1" }];
     exec.mockResolvedValueOnce(mockData);
 
     await totalUniqProductsCountHandler(req as Request, res as Response, next);
 
-    expect(find).toHaveBeenCalledWith({ city: "Moscow" }, {}, { sort: { updatedAt: 1 } });
+    expect(find).toHaveBeenCalledWith({ city: "TestCity" }, {}, { sort: { updatedAt: 1 } });
     expect(select).toHaveBeenCalledWith("link");
     expect(lean).toHaveBeenCalled();
     expect(exec).toHaveBeenCalled();
-    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:uniq-count:Moscow", 2, {
+    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:uniq-count:TestCity", 2, {
       ex: 60 * 60 * 24
     });
     expect(res.send).toHaveBeenCalledWith(2);
   });
 
   test("should return 0 if db returns an empty array", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     exec.mockResolvedValueOnce([]);
 
     await totalUniqProductsCountHandler(req as Request, res as Response, next);
 
     expect(res.send).toHaveBeenCalledWith(0);
-    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:uniq-count:Moscow", 0, {
+    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:uniq-count:TestCity", 0, {
       ex: 60 * 60 * 24
     });
   });
 
   test("should call next with error if db query fails", async () => {
-    req.query = { city: "Moscow" };
+    req.query = { city: "TestCity" };
     const error = new Error("DB error");
     exec.mockRejectedValueOnce(error);
 
