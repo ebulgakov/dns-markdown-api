@@ -1,14 +1,12 @@
-import { Router } from "express";
 import { Webhook } from "svix";
 
 import { User } from "../../db/models/user";
 import { env } from "../../env";
 
 import type { WebhookEvent } from "@clerk/backend/webhooks";
+import type { NextFunction, Request, Response } from "express";
 
-const router = Router();
-
-router.post("/create-user", async (req, res, next) => {
+async function createUserWebhookHandler(req: Request, res: Response, next: NextFunction) {
   const svix_id = req.header("svix-id");
   const svix_timestamp = req.header("svix-timestamp");
   const svix_signature = req.header("svix-signature");
@@ -55,7 +53,9 @@ router.post("/create-user", async (req, res, next) => {
     } catch (err) {
       next(err);
     }
+  } else {
+    res.status(200).json({ success: true, message: "Webhook received" });
   }
-});
+}
 
-export default router;
+export default createUserWebhookHandler;
