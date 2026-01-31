@@ -16,7 +16,9 @@ router.get("/", async (req, res, next) => {
     const cached = await cacheGet<PriceListType>(key);
     if (cached) return res.json(cached);
 
-    const priceList = await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } });
+    const priceList = (await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } })
+      .lean()
+      .exec()) as PriceListType;
     if (!priceList) return res.status(404).send("Price list not found");
 
     await cacheAdd<PriceListType>(key, priceList, { ex: 60 * 60 * 24 }); // 24 hours
