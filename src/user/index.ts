@@ -12,7 +12,7 @@ router.get("/id/:id", async (req, res, next) => {
     const user = await User.findOne({ userId: id }).lean().exec();
     if (!user) return res.status(404).send("User not found");
 
-    res.json(JSON.parse(JSON.stringify(user)));
+    res.json(user);
   } catch (error) {
     next(error);
   }

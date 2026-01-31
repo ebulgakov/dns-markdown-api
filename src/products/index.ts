@@ -18,7 +18,7 @@ router.get("/link", async (req, res, next) => {
 
     const key = `daily:products:link:${link}`;
     const cached = await cacheGet<ProductPayload>(key);
-    if (cached) res.json(cached);
+    if (cached) return res.json(cached);
 
     const historyList = (await AnalysisData.find({ link }).lean().exec()) as AnalysisDataType[];
     historyList?.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());

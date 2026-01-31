@@ -14,16 +14,14 @@ router.get("/", async (req, res, next) => {
 
     const key = `daily:pricelist:last:${String(city)}`;
     const cached = await cacheGet<PriceListType>(key);
-    if (cached) res.json(cached);
+    if (cached) return res.json(cached);
 
     const priceList = await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } });
     if (!priceList) return res.status(404).send("Price list not found");
 
-    const plainPriceList = JSON.stringify(priceList);
+    await cacheAdd(key, JSON.stringify(priceList), { ex: 60 * 60 * 24 }); // 24 hours
 
-    await cacheAdd(key, plainPriceList, { ex: 60 * 60 * 24 }); // 24 hours
-
-    res.json(JSON.parse(plainPriceList));
+    res.json(JSON.parse(priceList));
   } catch (error) {
     next(error);
   }
@@ -36,7 +34,7 @@ router.get("/list", async (req, res, next) => {
 
     const key = `daily:archive:list:${String(city)}`;
     const cached = await cacheGet<PriceListDate>(key);
-    if (cached) res.json(cached);
+    if (cached) return res.json(cached);
 
     const priceLists = await Pricelist.find({ city }, {}, { sort: { updatedAt: 1 } })
       .select("createdAt")
@@ -44,11 +42,9 @@ router.get("/list", async (req, res, next) => {
       .exec();
     if (!priceLists) return res.status(404).send("No archived price lists found");
 
-    const plainPriceLists = JSON.stringify(priceLists);
+    await cacheAdd(key, JSON.stringify(priceLists), { ex: 60 * 60 * 24 }); // 24 hours
 
-    await cacheAdd(key, plainPriceLists, { ex: 60 * 60 * 24 }); // 24 hours
-
-    res.json(JSON.parse(plainPriceLists));
+    res.json(priceLists);
   } catch (error) {
     next(error);
   }
@@ -61,16 +57,14 @@ router.get("/id/:id", async (req, res, next) => {
 
     const key = `archive:item:${String(id)}}`;
     const cached = await cacheGet<PriceListDate>(key);
-    if (cached) res.json(cached);
+    if (cached) return res.json(cached);
 
     const priceList = await Pricelist.findOne({ _id: id }).lean().exec();
     if (!priceList) return res.status(404).send("Archived price list not found");
 
-    const plainPriceList = JSON.stringify(priceList);
+    await cacheAdd(key, JSON.stringify(priceList)); // no expiration
 
-    await cacheAdd(key, plainPriceList); // no expiration
-
-    res.json(JSON.parse(plainPriceList));
+    res.json(priceList);
   } catch (error) {
     next(error);
   }
