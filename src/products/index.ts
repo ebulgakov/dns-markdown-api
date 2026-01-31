@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { cacheGet } from "../../cache";
+import { cacheAdd, cacheGet } from "../../cache";
 import { AnalysisData } from "../../db/models/analysis-data";
 import { Pricelist } from "../../db/models/pricelist.ts";
 
@@ -56,6 +56,8 @@ router.get("/link", async (req, res, next) => {
       history,
       status
     };
+
+    await cacheAdd(key, JSON.stringify(payload), { ex: 60 * 60 * 24 }); // 24 hours
 
     res.json(payload);
   } catch (error) {
