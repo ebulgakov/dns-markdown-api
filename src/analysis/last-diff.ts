@@ -1,7 +1,7 @@
 import { cacheAdd, cacheGet } from "../../cache";
-import { AnalysisDiff } from "../../db/models/analysis-diff.ts";
+import { AnalysisDiff } from "../../db/models/analysis-diff";
 
-import type { AnalysisDiff as AnalysisDiffType } from "../../types/analysis-diff.ts";
+import type { AnalysisDiff as AnalysisDiffType } from "../../types/analysis-diff";
 import type { NextFunction, Response, Request } from "express";
 
 async function lastAnalysisDiffHandler(req: Request, res: Response, next: NextFunction) {

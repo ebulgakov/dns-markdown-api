@@ -3,7 +3,7 @@ import { Router } from "express";
 import allAnalysisDiffsHandler from "./all-diffs";
 import lastAnalysisDiffHandler from "./last-diff";
 import productsCountHandler from "./products-count";
-import reportsHandler from "./reports.ts";
+import reportsHandler from "./reports";
 import totalUniqProductsCount from "./total-uniq-products-count";
 
 const router = Router();

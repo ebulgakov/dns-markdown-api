@@ -20,7 +20,7 @@ mock.module("../../../cache", () => ({
   cacheAdd
 }));
 
-mock.module("../../../db/models/pricelist.ts", () => ({
+mock.module("../../../db/models/pricelist", () => ({
   Pricelist
 }));
 
