@@ -83,9 +83,61 @@ describe("allAnalysisDiffsHandler", () => {
       {
         city: "TestCity",
         dateAdded: date,
-        newItems: [],
-        removedItems: [],
-        changesPrice: [],
+        newItems: [1, 2].map(() => ({
+          _id: "",
+          title: "",
+          link: "",
+          description: "",
+          reasons: [],
+          priceOld: "",
+          price: "",
+          profit: "",
+          code: "",
+          image: "",
+          available: "",
+          city: "",
+          category: "",
+          dateAdded: ""
+        })),
+        removedItems: [1].map(() => ({
+          _id: "",
+          title: "",
+          link: "",
+          description: "",
+          reasons: [],
+          priceOld: "",
+          price: "",
+          profit: "",
+          code: "",
+          image: "",
+          available: "",
+          city: "",
+          category: "",
+          dateAdded: ""
+        })),
+        changesPrice: [1, 2, 3].map(() => ({
+          diff: {
+            priceOld: "",
+            price: "",
+            profit: ""
+          },
+          item: {
+            _id: "",
+            title: "",
+            link: "",
+            description: "",
+            reasons: [],
+            priceOld: "",
+            price: "",
+            profit: "",
+            code: "",
+            image: "",
+            available: "",
+            city: "",
+            category: "",
+            dateAdded: ""
+          }
+        })),
         changesProfit: []
       }
     ];
