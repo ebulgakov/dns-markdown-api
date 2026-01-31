@@ -49,9 +49,9 @@ app.use("/api", authMiddleware);
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/user/favorites", favoritesRoutes);
+app.use("/api/user/sections", userSectionsRoutes);
 app.use("/api/analysis", analysisRoutes);
-app.use("/api/favorites", favoritesRoutes);
-app.use("/api/user-sections", userSectionsRoutes);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
