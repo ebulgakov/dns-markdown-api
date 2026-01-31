@@ -5,10 +5,10 @@ import morgan from "morgan";
 
 import { env, isDev, isTestEnv } from "../env";
 
-import archiveRoutes from "./archive";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import priceListRoutes from "./pricelist";
+import productsRoutes from "./products";
 import userRoutes from "./user";
 
 import type { NextFunction, Request, Response } from "express";
@@ -44,7 +44,7 @@ app.get("/health", (_req, res) => {
 app.use("/api", authMiddleware);
 
 app.use("/api/pricelist", priceListRoutes);
-app.use("/api/archive", archiveRoutes);
+app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
