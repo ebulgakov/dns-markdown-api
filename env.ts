@@ -24,7 +24,7 @@ const envSchema = z.object({
 
   // Auth
   API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
-  API_SERVICE_SECRET: z.string().min(10, "API_SECRET_SECRET must be at least 10 characters long"),
+  API_SERVICE_SECRET: z.string().min(10, "API_SERVICE_SECRET must be at least 10 characters long"),
 
   // Upstash Redis
   UPSTASH_REDIS_REST_URL: z.string().startsWith("https://"),

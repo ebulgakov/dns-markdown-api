@@ -9,7 +9,9 @@ async function insertAnalysisDataHandler(req: Request, res: Response, next: Next
       analysisData: AnalysisDataType[];
     };
 
-    if (!analysisData) return res.status(400).send("analysisData are required");
+    if (!Array.isArray(analysisData) || analysisData.length === 0) {
+      return res.status(400).send("analysisData must be a non-empty array");
+    }
 
     await AnalysisData.insertMany(analysisData);
     res.sendStatus(201);

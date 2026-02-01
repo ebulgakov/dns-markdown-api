@@ -6,14 +6,14 @@ export const serviceMiddleware = (req: Request, res: Response, next: NextFunctio
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.json({ error: "Missing or invalid Authorization header" }).status(401);
+    return res.status(401).json({ error: "Missing or invalid Authorization header" });
   }
 
   const token = authHeader.split(" ")[1] || "";
 
   // Just in case if token is empty string and API_SERVICE_SECRET also empty string
   if (!token || token !== env.API_SERVICE_SECRET) {
-    return res.json({ error: "Unauthorized Service" }).status(401);
+    return res.status(401).json({ error: "Unauthorized Service" });
   }
 
   next();

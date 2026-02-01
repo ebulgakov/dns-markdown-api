@@ -9,7 +9,7 @@ async function insertAnalysisDiffHandler(req: Request, res: Response, next: Next
       analysisDiff: AnalysisDiffType[];
     };
 
-    if (!analysisDiff) return res.status(400).send("analysisDiff are required");
+    if (!analysisDiff) return res.status(400).send("analysisDiff is required");
 
     await AnalysisDiff.insertMany(analysisDiff);
     res.sendStatus(201);
