@@ -25,4 +25,8 @@ async function cacheKeys(pattern: string) {
   return await redis.keys(pattern);
 }
 
-export { cacheGet, cacheAdd, cacheRemove, cacheKeys };
+async function cacheDelete(key: string) {
+  await redis.del(key);
+}
+
+export { cacheGet, cacheAdd, cacheRemove, cacheKeys, cacheDelete };

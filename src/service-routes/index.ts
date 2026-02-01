@@ -4,6 +4,8 @@ import addAnalysisReportHandler from "./add-analysis-report";
 import addNewPriceListHandler from "./add-new-price-list";
 import allPriceListsHandler from "./all-price-lists";
 import allUsersHandler from "./all-users";
+import clearAllCacheHandler from "./clear-all-cache";
+import clearDailyCacheHandler from "./clear-daily-cache";
 import deleteAnalysisDataHandler from "./delete-analysis-data";
 import deleteAnalysisDataByDateHandler from "./delete-analysis-data-by-date";
 import deleteAnalysisDiffHandler from "./delete-analysis-diff";
@@ -33,5 +35,8 @@ router.post("/delete-analysis-report-by-city-date", deleteAnalysisReportByCityDa
 
 router.get("/all-users", allUsersHandler);
 router.post("/update-users-favorites", updateUsersFavoritesHandler);
+
+router.post("/clear-all-cache", clearAllCacheHandler);
+router.post("/clear-daily-cache", clearDailyCacheHandler);
 
 export default router;
