@@ -15,7 +15,7 @@ export const userMiddleware = async (req: Request, res: Response, next: NextFunc
 
   try {
     const verifiedToken = await verifyToken(sessionToken!, {
-      secretKey: env.CLERK_SECRET_KEY,
+      secretKey: env.CLERK_SECRET_KEY
     });
 
     req.auth = { userId: verifiedToken.sub };
