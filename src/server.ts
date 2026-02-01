@@ -13,7 +13,7 @@ import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
 import priceListRoutes from "./pricelist-routes";
-import productsRoutes from "./products";
+import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
 import userRoutes from "./user";
 import userSectionsRoutes from "./user-sections";

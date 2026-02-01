@@ -1,7 +1,7 @@
 import { cacheAdd, cacheGet } from "../../cache";
-import { Pricelist } from "../../db/models/pricelist.ts";
+import { Pricelist } from "../../db/models/pricelist";
 
-import type { PriceList as PriceListType } from "../../types/pricelist.ts";
+import type { PriceList as PriceListType } from "../../types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function priceListByIdHandler(req: Request, res: Response, next: NextFunction) {

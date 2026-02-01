@@ -1,8 +1,8 @@
 import { Router } from "express";
 
-import lastPriceListHandler from "./last-pricelist.ts";
-import listPriceListsHandler from "./list.ts";
-import priceListByIdHandler from "./pricelist-by-id.ts";
+import lastPriceListHandler from "./last-pricelist";
+import listPriceListsHandler from "./list";
+import priceListByIdHandler from "./pricelist-by-id";
 
 const router = Router();
 

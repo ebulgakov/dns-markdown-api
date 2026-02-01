@@ -1,0 +1,60 @@
+import { cacheAdd, cacheGet } from "../../cache";
+import { AnalysisData } from "../../db/models/analysis-data";
+
+import getFlatCatalog from "./helpers/get-flat-catalog";
+
+import type { AnalysisData as AnalysisDataType } from "../../types/analysis-data";
+import type { DiffHistory } from "../../types/analysis-diff";
+import type { ProductPayload } from "../../types/product";
+import type { NextFunction, Request, Response } from "express";
+
+async function productByLinkHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const link = req.query.link as string;
+    if (!link) return res.status(400).send("link is required");
+
+    const key = `daily:products:link:${link}`;
+    const cached = await cacheGet<ProductPayload>(key);
+    if (cached) return res.json(cached);
+
+    const historyList = (await AnalysisData.find({ link }).lean().exec()) as AnalysisDataType[];
+    historyList?.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
+
+    const product = historyList[historyList.length - 1];
+    if (!product) return res.status(404).send("Product not found");
+
+    const history: DiffHistory = historyList.map(entry => {
+      return {
+        dateAdded: entry.dateAdded,
+        price: entry.price,
+        priceOld: entry.priceOld,
+        profit: entry.profit
+      };
+    });
+
+    const flatCatalog = await getFlatCatalog(product.city);
+    const ifExists = flatCatalog.find(item => item.link === link);
+
+    const status = {
+      city: product.city,
+      updates: [],
+      createdAt: history[0]!.dateAdded, // non-null assertion as history has at least one entry here
+      updatedAt: history[history.length - 1]!.dateAdded, // non-null assertion as history has at least one entry here
+      deleted: !ifExists
+    };
+
+    const payload: ProductPayload = {
+      item: product,
+      history,
+      status
+    };
+
+    await cacheAdd<ProductPayload>(key, payload, { ex: 60 * 60 * 24 }); // 24 hours
+
+    res.json(payload);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default productByLinkHandler;

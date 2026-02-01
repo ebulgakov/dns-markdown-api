@@ -1,6 +1,6 @@
-import { User } from "../../db/models/user.ts";
+import { User } from "../../db/models/user";
 
-import type { Favorite } from "../../types/user.ts";
+import type { Favorite } from "../../types/user";
 import type { Request, Response, NextFunction } from "express";
 
 async function removeFavoriteHandler(req: Request, res: Response, next: NextFunction) {
