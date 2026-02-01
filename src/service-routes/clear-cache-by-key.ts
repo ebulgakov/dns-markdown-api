@@ -2,11 +2,15 @@ import { cacheDelete, cacheKeys } from "../../cache";
 
 import type { NextFunction, Request, Response } from "express";
 
-async function clearDailyCacheHandler(_req: Request, res: Response, next: NextFunction) {
+async function clearCacheByKeyHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const keys = await cacheKeys("daily:*");
+    const { keys } = req.body as { keys: string };
+
+    if (!keys?.trim()) return res.status(400).send("keys is required");
+
+    const foundKeys = await cacheKeys(keys);
     await Promise.all(
-      keys
+      foundKeys
         .map(key => (key && key !== "" ? key : null))
         .filter(Boolean)
         .map(key => cacheDelete(key as string))
@@ -17,4 +21,4 @@ async function clearDailyCacheHandler(_req: Request, res: Response, next: NextFu
   }
 }
 
-export default clearDailyCacheHandler;
+export default clearCacheByKeyHandler;
