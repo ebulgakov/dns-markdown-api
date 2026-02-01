@@ -1,3 +1,4 @@
+import { cacheDelete } from "../../cache";
 import { Pricelist } from "../../db/models/pricelist";
 
 import type { Position } from "../../types/pricelist";
@@ -15,6 +16,10 @@ async function addNewPriceListHandler(req: Request, res: Response, next: NextFun
     });
 
     await priceList.save();
+
+    const key = `daily:pricelist:last:${String(city)}`;
+    await cacheDelete(key);
+
     res.status(201).json(priceList);
   } catch (error) {
     next(error);
