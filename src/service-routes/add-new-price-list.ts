@@ -8,7 +8,9 @@ async function addNewPriceListHandler(req: Request, res: Response, next: NextFun
   try {
     const { city, positions } = req.body as { city: string; positions: Position[] };
 
-    if (!city || !positions) return res.status(400).send("city and positions are required");
+    if (!city?.trim() || !Array.isArray(positions) || positions.length === 0) {
+      return res.status(400).send("city and positions are required");
+    }
 
     const priceList = new Pricelist({
       city,
