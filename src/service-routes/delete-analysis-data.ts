@@ -6,7 +6,7 @@ async function deleteAnalysisDataHandler(req: Request, res: Response, next: Next
   try {
     const { city } = req.body as { city: string };
 
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     await AnalysisData.deleteMany({ city }).exec();
 

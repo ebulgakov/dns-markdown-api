@@ -10,7 +10,7 @@ const router = Router();
 router.get("/", async (req, res, next) => {
   try {
     const city = req.query.city as string;
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     const key = `daily:pricelist:last:${String(city)}`;
     const cached = await cacheGet<PriceListType>(key);
@@ -32,7 +32,7 @@ router.get("/", async (req, res, next) => {
 router.get("/list", async (req, res, next) => {
   try {
     const city = req.query.city as string;
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     const key = `daily:archive:list:${String(city)}`;
     const cached = await cacheGet<PriceListDate[]>(key);

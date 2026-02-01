@@ -70,7 +70,7 @@ router.get("/link", async (req, res, next) => {
 router.get("/most-cheap-products", async (req, res, next) => {
   try {
     const city = req.query.city as string;
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     const key = `daily:products:most-cheap-products:${String(city)}`;
     const cached = await cacheGet<Goods[]>(key);
@@ -92,7 +92,7 @@ router.get("/most-cheap-products", async (req, res, next) => {
 router.get("/most-discounted-products", async (req, res, next) => {
   try {
     const city = req.query.city as string;
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     const key = `daily:products:most-discounted-products:${String(city)}`;
     const cached = await cacheGet<Goods[]>(key);
@@ -123,7 +123,7 @@ router.get("/most-discounted-products", async (req, res, next) => {
 router.get("/most-profitable-products", async (req, res, next) => {
   try {
     const city = req.query.city as string;
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     const key = `daily:products:most-profitable-products:${String(city)}`;
     const cached = await cacheGet<Goods[]>(key);

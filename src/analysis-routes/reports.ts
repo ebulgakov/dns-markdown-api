@@ -7,7 +7,7 @@ import type { NextFunction, Response, Request } from "express";
 async function reportsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const city = req.query.city as string;
-    if (!city) return res.status(400).send("city is required");
+    if (!city?.trim()) return res.status(400).send("city is required");
 
     const key = `daily:analysis:reports:${String(city)}`;
     const cached = await cacheGet<ReportsResponse>(key);
