@@ -8,11 +8,11 @@ import { env, isDev, isTestEnv } from "../env";
 
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
-import favoritesRoutes from "./favorites";
+import favoritesRoutes from "./favorites-routes";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
-import priceListRoutes from "./pricelist";
+import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products";
 import serviceRoutes from "./service-routes";
 import userRoutes from "./user";
