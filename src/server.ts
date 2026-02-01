@@ -8,15 +8,15 @@ import { env, isDev, isTestEnv } from "../env";
 
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
-import favoritesRoutes from "./favorites-routes";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
+import { userMiddleware } from "./middleware/user-middleware";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
+import useActionsRoutes from "./user-actions-routes";
 import userRoutes from "./user-routes";
-import userSectionsRoutes from "./user-sections-routes";
 
 import "../instrument";
 
@@ -57,12 +57,12 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api", authMiddleware);
+app.use("/user-actions", userMiddleware);
 
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/user/favorites", favoritesRoutes);
-app.use("/api/user/sections", userSectionsRoutes);
+app.use("/user-actions", useActionsRoutes);
 app.use("/api/analysis", analysisRoutes);
 app.use("/clerk", clerkRoutes);
 

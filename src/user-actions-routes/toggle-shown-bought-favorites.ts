@@ -4,7 +4,8 @@ import type { NextFunction, Request, Response } from "express";
 
 async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId, status } = req.body;
+    const { status } = req.body;
+    const { userId } = req.auth || {};
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");

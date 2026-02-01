@@ -4,7 +4,8 @@ import type { Request, Response, NextFunction } from "express";
 
 async function removeFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { link, userId } = req.body;
+    const { link } = req.body;
+    const { userId } = req.auth || {};
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");

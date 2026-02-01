@@ -2,9 +2,10 @@ import { User } from "../../db/models/user";
 
 import type { NextFunction, Request, Response } from "express";
 
-async function favoriteRemoveHandler(req: Request, res: Response, next: NextFunction) {
+async function hiddenRemoveHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title, userId } = req.body;
+    const { title } = req.body;
+    const { userId } = req.auth || {};
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
@@ -16,18 +17,18 @@ async function favoriteRemoveHandler(req: Request, res: Response, next: NextFunc
 
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
-      { $pull: { favoriteSections: title.trim() } },
+      { $pull: { hiddenSections: title.trim() } },
       { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");
     res.json({
-      message: "Section removed from favorite sections",
-      sections: user.favoriteSections
+      message: "Section removed from hidden sections",
+      sections: user.hiddenSections
     });
   } catch (error) {
     next(error);
   }
 }
 
-export default favoriteRemoveHandler;
+export default hiddenRemoveHandler;

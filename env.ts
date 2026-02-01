@@ -14,6 +14,7 @@ if (isDev()) {
 }
 
 const envSchema = z.object({
+  CLERK_SECRET_KEY: z.string().min(10, "CLERK_SECRET_KEY must be at least 10 characters long"),
   CLERK_WEBHOOK_SIGNING_SECRET: z
     .string()
     .min(10, "CLERK_WEBHOOK_SIGNING_SECRET must be at least 10 characters long"),
