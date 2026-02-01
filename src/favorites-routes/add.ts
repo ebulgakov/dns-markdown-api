@@ -10,7 +10,7 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
       return res.status(401).send("Authentication required. User identity not found.");
     }
 
-    if (typeof product !== "object" || product === null) {
+    if (typeof product !== "object" || product === null || Array.isArray(product)) {
       return res.status(400).send("product is required and must be a valid object.");
     }
 
@@ -24,7 +24,7 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $push: { favorites: item } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");

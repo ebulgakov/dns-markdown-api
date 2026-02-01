@@ -11,7 +11,8 @@ import type { NextFunction, Request, Response } from "express";
 
 async function productByLinkHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const link = req.query.link as string;
+    const linkRaw = req.query.link as string;
+    const link = `${linkRaw ?? ""}`.trim();
     if (!link) return res.status(400).send("link is required");
 
     const key = `daily:products:link:${link}`;

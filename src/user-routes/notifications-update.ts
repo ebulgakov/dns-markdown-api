@@ -36,7 +36,7 @@ async function updateNotificationHandler(req: Request, res: Response, next: Next
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $set: { notifications } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");

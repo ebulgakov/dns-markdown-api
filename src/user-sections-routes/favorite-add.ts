@@ -16,7 +16,7 @@ async function favoriteAddHandler(req: Request, res: Response, next: NextFunctio
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $addToSet: { favoriteSections: title.trim() } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");

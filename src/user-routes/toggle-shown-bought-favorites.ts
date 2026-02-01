@@ -17,7 +17,7 @@ async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, ne
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $set: { shownBoughtFavorites: status } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");

@@ -17,7 +17,7 @@ async function hiddenAddHandler(req: Request, res: Response, next: NextFunction)
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $addToSet: { hiddenSections: title.trim() } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");

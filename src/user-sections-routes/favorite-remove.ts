@@ -17,7 +17,7 @@ async function favoriteRemoveHandler(req: Request, res: Response, next: NextFunc
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $pull: { favoriteSections: title.trim() } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");

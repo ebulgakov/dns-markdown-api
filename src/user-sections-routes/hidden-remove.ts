@@ -17,7 +17,7 @@ async function hiddenRemoveHandler(req: Request, res: Response, next: NextFuncti
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
       { $pull: { hiddenSections: title.trim() } },
-      { new: true }
+      { new: true, runValidators: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");
