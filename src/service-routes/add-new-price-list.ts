@@ -24,7 +24,7 @@ async function addNewPriceListHandler(req: Request, res: Response, next: NextFun
     try {
       await cacheDelete(key);
     } catch (cacheError) {
-      console.warn("Failed to invalidate pricelist cache", { key, cacheError });
+      console.warn("Failed to invalidate cache", { key, cacheError });
     }
 
     res.status(201).json(priceList);

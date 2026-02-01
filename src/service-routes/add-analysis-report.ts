@@ -21,7 +21,7 @@ async function addAnalysisReportHandler(req: Request, res: Response, next: NextF
     try {
       await cacheDelete(key);
     } catch (cacheError) {
-      console.warn("Failed to invalidate pricelist cache", { key, cacheError });
+      console.warn("Failed to invalidate cache", { key, cacheError });
     }
 
     res.sendStatus(200);
