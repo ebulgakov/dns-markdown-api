@@ -6,7 +6,7 @@ import type { NextFunction, Request, Response } from "express";
 
 async function allAnalysisGoodsByDateAddedHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city: cityRaw, dateAdded: dateAddedRaw } = req.body as {
+    const { city: cityRaw, dateAdded: dateAddedRaw } = req.query as {
       city?: unknown;
       dateAdded?: unknown;
     };
