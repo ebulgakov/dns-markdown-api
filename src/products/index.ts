@@ -69,8 +69,8 @@ router.get("/link", async (req, res, next) => {
 
 router.get("/most-cheap-products", async (req, res, next) => {
   try {
-    const cityRaw = req.query.city as string;
-    const city = cityRaw?.trim();
+    const cityRaw = req.query.city;
+    const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
     const key = `daily:products:most-cheap-products:${String(city)}`;
@@ -92,8 +92,8 @@ router.get("/most-cheap-products", async (req, res, next) => {
 
 router.get("/most-discounted-products", async (req, res, next) => {
   try {
-    const cityRaw = req.query.city as string;
-    const city = cityRaw?.trim();
+    const cityRaw = req.query.city;
+    const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
     const key = `daily:products:most-discounted-products:${String(city)}`;
@@ -124,8 +124,8 @@ router.get("/most-discounted-products", async (req, res, next) => {
 
 router.get("/most-profitable-products", async (req, res, next) => {
   try {
-    const cityRaw = req.query.city as string;
-    const city = cityRaw?.trim();
+    const cityRaw = req.query.city;
+    const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
     const key = `daily:products:most-profitable-products:${String(city)}`;

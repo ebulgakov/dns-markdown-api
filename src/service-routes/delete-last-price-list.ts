@@ -5,8 +5,8 @@ import type { NextFunction, Request, Response } from "express";
 
 async function deleteLastPriceListHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city: cityRaw } = req.body as { city: string };
-    const city = cityRaw?.trim();
+    const { city: cityRaw } = req.body as { city: unknown };
+    const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
     await Pricelist.findOneAndDelete({ city }, { sort: { updatedAt: -1 } }).exec();
