@@ -9,6 +9,8 @@ async function deleteAnalysisDataHandler(req: Request, res: Response, next: Next
     if (!city) return res.status(400).send("city is required");
 
     await AnalysisData.deleteMany({ city }).exec();
+
+    // TODO: add invalidation of related cache entries
     res.sendStatus(200);
   } catch (error) {
     next(error);

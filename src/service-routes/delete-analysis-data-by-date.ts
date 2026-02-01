@@ -9,6 +9,8 @@ async function deleteAnalysisDataByDateHandler(req: Request, res: Response, next
     if (!city || !date) return res.status(400).send("city and date are required");
 
     await AnalysisData.deleteMany({ city, dateAdded: date }).exec();
+
+    // TODO: add invalidation of related cache entries
     res.sendStatus(200);
   } catch (error) {
     next(error);

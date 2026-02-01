@@ -16,6 +16,8 @@ async function deleteAnalysisReportByCityDateHandler(
     await Reports.deleteMany({ city, dateAdded }).exec();
 
     const key = `daily:analysis:reports:${String(city)}`;
+
+    // TODO: add invalidation of related cache entries
     await cacheDelete(key);
 
     res.sendStatus(200);
