@@ -23,12 +23,24 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
       item: product
     };
     const user = await User.findOneAndUpdate(
-      { userId: userId.trim() },
-      { $push: { favorites: item } },
+      {
+        userId: userId.trim(),
+        "favorites.item.link": { $ne: product.link } // Assuming 'link' is a unique identifier for the product
+      },
+      { $addToSet: { favorites: item } },
       { new: true, runValidators: true }
     ).exec();
 
-    if (!user) return res.status(404).send("User not found");
+    // Check if the user was found and the item was added
+    if (!user) {
+      // Check if the user exists to differentiate between user not found and item already in favorites
+      const existingUser = await User.findOne({ userId: userId.trim() }).select("favorites").exec();
+      if (!existingUser) return res.status(404).send("User not found");
+
+      return res
+        .status(409)
+        .json({ message: "Item already in favorites", favorites: existingUser.favorites });
+    }
 
     res.json({ message: "Item added to favorites", favorites: user.favorites });
   } catch (error) {
