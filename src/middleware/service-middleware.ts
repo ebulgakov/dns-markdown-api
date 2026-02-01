@@ -2,7 +2,7 @@ import { env } from "../../env";
 
 import type { NextFunction, Request, Response } from "express";
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const serviceMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -11,9 +11,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
   const token = authHeader.split(" ")[1] || "";
 
-  // Just in case if token is empty string and some of the secrets also empty string
-  if (!token || ![env.API_SERVICE_SECRET, env.API_AUTH_SECRET].includes(token)) {
-    return res.json({ error: "Unauthorized" }).status(401);
+  // Just in case if token is empty string and API_SERVICE_SECRET also empty string
+  if (!token || token !== env.API_SERVICE_SECRET) {
+    return res.json({ error: "Unauthorized Service" }).status(401);
   }
 
   next();

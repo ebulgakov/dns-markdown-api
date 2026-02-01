@@ -11,8 +11,10 @@ import clerkRoutes from "./clerk-routes";
 import favoritesRoutes from "./favorites";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
+import { serviceMiddleware } from "./middleware/service-middleware";
 import priceListRoutes from "./pricelist";
 import productsRoutes from "./products";
+import serviceRoutes from "./service-routes";
 import userRoutes from "./user";
 import userSectionsRoutes from "./user-sections";
 
@@ -59,8 +61,10 @@ app.use("/api/user", userRoutes);
 app.use("/api/user/favorites", favoritesRoutes);
 app.use("/api/user/sections", userSectionsRoutes);
 app.use("/api/analysis", analysisRoutes);
-
 app.use("/clerk", clerkRoutes);
+
+app.use("/service", serviceMiddleware);
+app.use("/service", serviceRoutes);
 
 Sentry.setupExpressErrorHandler(app);
 

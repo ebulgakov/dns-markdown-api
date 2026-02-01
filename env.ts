@@ -18,12 +18,16 @@ const envSchema = z.object({
     .string()
     .min(10, "CLERK_WEBHOOK_SIGNING_SECRET must be at least 10 characters long"),
   CITY: z.string().default("samara"),
-  API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
   PORT: z.string().default("4000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   DATABASE_URL: z.string().startsWith("mongodb+srv://"),
+
+  // Auth
+  API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
+  API_SERVICE_SECRET: z.string().min(10, "API_SECRET_SECRET must be at least 10 characters long"),
+
   // Upstash Redis
-  UPSTASH_REDIS_REST_URL: z.string().url(),
+  UPSTASH_REDIS_REST_URL: z.string().startsWith("https://"),
   UPSTASH_REDIS_REST_TOKEN: z
     .string()
     .min(10, "UPSTASH_REDIS_REST_TOKEN must be at least 10 characters long"),
