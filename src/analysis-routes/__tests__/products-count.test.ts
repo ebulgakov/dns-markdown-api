@@ -64,16 +64,6 @@ describe("productsCountHandler", () => {
     expect(find).not.toHaveBeenCalled();
   });
 
-  test("should return 404 if no pricelists found in db", async () => {
-    req.query = { city: "TestCity" };
-    exec.mockResolvedValueOnce(null);
-
-    await productsCountHandler(req as Request, res as Response, next);
-
-    expect(status).toHaveBeenCalledWith(404);
-    expect(send).toHaveBeenCalledWith("No archived price lists found");
-  });
-
   test("should fetch from db, calculate counts, cache it, and return it", async () => {
     req.query = { city: "TestCity" };
     const date1 = new Date("2023-01-01T00:00:00.000Z");

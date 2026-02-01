@@ -18,7 +18,6 @@ async function listPriceListsHandler(req: Request, res: Response, next: NextFunc
       .select("createdAt")
       .lean()
       .exec()) as PriceListDate[];
-    if (priceLists.length === 0) return res.status(404).send("No archived price lists found");
 
     await cacheAdd<PriceListDate[]>(key, priceLists, { ex: 60 * 60 * 24 }); // 24 hours
 

@@ -35,8 +35,6 @@ async function allAnalysisGoodsByDateAddedHandler(req: Request, res: Response, n
       .lean()
       .exec()) as AnalysisDataType[];
 
-    if (!goods.length) return res.status(404).send("No goods found");
-
     await cacheAdd<AnalysisDataType[]>(key, goods); // Save forever
 
     res.json(goods);

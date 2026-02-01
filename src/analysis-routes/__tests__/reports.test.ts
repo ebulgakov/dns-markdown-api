@@ -64,16 +64,6 @@ describe("reportsHandler", () => {
     expect(find).not.toHaveBeenCalled();
   });
 
-  test("should return 404 if no reports found in db", async () => {
-    req.query = { city: "TestCity" };
-    exec.mockResolvedValueOnce(null);
-
-    await reportsHandler(req as Request, res as Response, next);
-
-    expect(status).toHaveBeenCalledWith(404);
-    expect(send).toHaveBeenCalledWith("Analysis reports not found");
-  });
-
   test("should fetch from db, cache it, and return it", async () => {
     req.query = { city: "TestCity" };
     const mockReports: ReportsResponse = [

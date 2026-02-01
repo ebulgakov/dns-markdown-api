@@ -19,8 +19,6 @@ async function totalUniqProductsCountHandler(req: Request, res: Response, next: 
       .lean()
       .exec()) as AnalysisDataType[];
 
-    if (!data) return res.status(404).send("No archived price lists found");
-
     const links = data.map(item => item.link) as string[];
     const uniqueLinks = Array.from(new Set(links));
 
