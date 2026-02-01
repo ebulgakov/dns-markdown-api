@@ -13,7 +13,7 @@ async function updateNotificationHandler(req: Request, res: Response, next: Next
     }
 
     if (typeof notificationsRaw !== "object" || notificationsRaw === null) {
-      return res.status(400).send("notifications is required and must be a object.");
+      return res.status(400).send("notifications is required and must be an object.");
     }
 
     const { updates } = notificationsRaw as UserNotifications;
