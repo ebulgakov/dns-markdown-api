@@ -4,6 +4,8 @@ import type { NextFunction, Request, Response } from "express";
 
 async function clearAllCacheHandler(_req: Request, res: Response, next: NextFunction) {
   try {
+    // This approach works well for small to medium keyspaces
+    // TODO: use SCAN for production environments with large keyspaces
     const keys = await cacheKeys("*");
     await Promise.all(
       keys
