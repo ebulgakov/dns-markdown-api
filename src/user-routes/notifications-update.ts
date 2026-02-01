@@ -5,15 +5,36 @@ import type { NextFunction, Request, Response } from "express";
 
 async function updateNotificationHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId, notifications } = req.body as {
-      userId: string;
-      notifications: UserNotifications;
+    const { notifications: notificationsRaw, userId } = req.body;
+
+    if (typeof userId !== "string" || !userId.trim()) {
+      return res.status(401).send("Authentication required. User identity not found.");
+    }
+
+    if (typeof notificationsRaw !== "object" || notificationsRaw === null) {
+      return res.status(400).send("notifications is required and must be a object.");
+    }
+
+    const { updates } = notificationsRaw as UserNotifications;
+
+    if (typeof updates !== "object" || updates === null) {
+      return res.status(400).send("notifications must have an 'updates' object property.");
+    }
+
+    const { enabled } = updates as { enabled?: unknown };
+    if (typeof enabled !== "boolean") {
+      return res.status(400).send("notifications.updates must have an 'enabled' boolean property.");
+    }
+
+    // Avoid overwriting other notification settings by only updating the provided fields
+    const notifications: UserNotifications = {
+      updates: {
+        enabled
+      }
     };
-    if (!userId || !notifications)
-      return res.status(400).send("userId and notifications are required");
 
     const user = await User.findOneAndUpdate(
-      { userId },
+      { userId: userId.trim() },
       { $set: { notifications } },
       { new: true }
     ).exec();

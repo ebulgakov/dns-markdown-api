@@ -4,15 +4,19 @@ import type { Request, Response, NextFunction } from "express";
 
 async function removeFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId, link } = req.body as {
-      userId: string;
-      link: string;
-    };
-    if (!userId || !link) return res.status(400).send("userId and link are required");
+    const { link, userId } = req.body;
+
+    if (typeof userId !== "string" || !userId.trim()) {
+      return res.status(401).send("Authentication required. User identity not found.");
+    }
+
+    if (typeof link !== "string" || !link.trim()) {
+      return res.status(400).send("link is required and must be a non-empty string.");
+    }
 
     const user = await User.findOneAndUpdate(
-      { userId },
-      { $pull: { favorites: { "item.link": link } } },
+      { userId: userId.trim() },
+      { $pull: { favorites: { "item.link": link.trim() } } },
       { new: true }
     ).exec();
 

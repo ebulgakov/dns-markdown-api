@@ -4,22 +4,23 @@ import type { NextFunction, Request, Response } from "express";
 
 async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId, status } = req.body as {
-      userId: string;
-      status: boolean;
-    };
+    const { userId, status } = req.body;
 
-    if (!userId || typeof status !== "boolean")
-      return res.status(400).send("userId and status are required");
+    if (typeof userId !== "string" || !userId.trim()) {
+      return res.status(401).send("Authentication required. User identity not found.");
+    }
+
+    if (typeof status !== "boolean") {
+      return res.status(400).send("Invalid 'status' value. It must be a boolean.");
+    }
 
     const user = await User.findOneAndUpdate(
-      { userId },
+      { userId: userId.trim() },
       { $set: { shownBoughtFavorites: status } },
       { new: true }
     ).exec();
 
     if (!user) return res.status(404).send("User not found");
-
     res.json({
       message: "Show bought favorites status updated",
       shownBoughtFavorites: user.shownBoughtFavorites

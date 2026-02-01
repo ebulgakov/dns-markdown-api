@@ -1,17 +1,22 @@
 import { User } from "../../db/models/user";
 
-import type { UserSectionsPayload } from "./types";
 import type { NextFunction, Request, Response } from "express";
 
 async function hiddenAddHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title, userId } = req.body as UserSectionsPayload;
-    if (!userId) return res.status(401).send("Authentication required. User identity not found.");
-    if (!title) return res.status(400).send("title is required");
+    const { title, userId } = req.body;
+
+    if (typeof userId !== "string" || !userId.trim()) {
+      return res.status(401).send("Authentication required. User identity not found.");
+    }
+
+    if (typeof title !== "string" || !title.trim()) {
+      return res.status(400).send("title is required and must be a non-empty string.");
+    }
 
     const user = await User.findOneAndUpdate(
-      { userId },
-      { $addToSet: { hiddenSections: title } },
+      { userId: userId.trim() },
+      { $addToSet: { hiddenSections: title.trim() } },
       { new: true }
     ).exec();
 

@@ -5,11 +5,23 @@ import type { NextFunction, Request, Response } from "express";
 
 async function addFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { userId, product } = req.body as {
-      userId: string;
-      product: Goods;
-    };
-    if (!userId || !product) return res.status(400).send("userId and product are required");
+    const { product: productRaw, userId } = req.body;
+
+    if (typeof userId !== "string" || !userId.trim()) {
+      return res.status(401).send("Authentication required. User identity not found.");
+    }
+
+    if (typeof productRaw !== "object" || productRaw === null) {
+      return res.status(400).send("product is required and must be a valid object.");
+    }
+
+    // Validate that product has a valid 'city' property
+    const { city } = productRaw as Partial<Goods>;
+    if (typeof city !== "string" || !city.trim()) {
+      return res.status(400).send("product must have a valid 'city' property.");
+    }
+
+    const product = productRaw as Goods;
 
     const item = {
       status: {
@@ -20,7 +32,7 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
       item: product
     };
     const user = await User.findOneAndUpdate(
-      { userId },
+      { userId: userId.trim() },
       { $push: { favorites: item } },
       { new: true }
     ).exec();
