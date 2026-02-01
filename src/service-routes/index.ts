@@ -2,8 +2,8 @@ import { Router } from "express";
 
 import addAnalysisReportHandler from "./add-analysis-report";
 import addNewPriceListHandler from "./add-new-price-list";
+import allNotificationUsersHandler from "./all-notification-users";
 import allPriceListsHandler from "./all-price-lists";
-import allUsersHandler from "./all-users";
 import clearAllCacheHandler from "./clear-all-cache";
 import clearDailyCacheHandler from "./clear-daily-cache";
 import deleteAnalysisDataHandler from "./delete-analysis-data";
@@ -33,7 +33,7 @@ router.post("/delete-analysis-diff-by-date", deleteAnalysisDiffByDateHandler);
 router.post("/add-analysis-report", addAnalysisReportHandler);
 router.post("/delete-analysis-report-by-city-date", deleteAnalysisReportByCityDateHandler);
 
-router.get("/all-users", allUsersHandler);
+router.get("/all-notification-users", allNotificationUsersHandler);
 router.post("/update-users-favorites", updateUsersFavoritesHandler);
 
 router.post("/clear-all-cache", clearAllCacheHandler);

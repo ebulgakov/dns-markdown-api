@@ -5,15 +5,15 @@ import type { NextFunction, Response, Request } from "express";
 
 async function insertAnalysisDiffHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { analysisDiff } = req.body as {
-      analysisDiff: AnalysisDiffType[];
+    const { diff } = req.body as {
+      diff: AnalysisDiffType[];
     };
 
-    if (!Array.isArray(analysisDiff) || analysisDiff.length === 0) {
+    if (!Array.isArray(diff) || diff.length === 0) {
       return res.status(400).send("analysisDiff must be a non-empty array");
     }
 
-    await AnalysisDiff.insertMany(analysisDiff);
+    await AnalysisDiff.insertMany(diff);
     res.sendStatus(201);
   } catch (error) {
     next(error);
