@@ -23,7 +23,7 @@ async function allAnalysisGoodsByDateAddedHandler(req: Request, res: Response, n
       return res.status(400).send("dateAdded must be a valid date string");
     }
 
-    const key = `analysis:goods-by-date:${parsedDate}-${String(city)}`;
+    const key = `analysis:goods-by-date:${parsedDate.toISOString()}-${String(city)}`;
     const cached = await cacheGet<AnalysisDataType[]>(key);
     if (cached) return res.send(cached);
 
