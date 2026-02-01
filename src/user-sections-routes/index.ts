@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import favoriteAddHandler from "./favorite-add.ts";
-import favoriteRemoveHandler from "./favorite-remove.ts";
-import hiddenAddHandler from "./hidden-add.ts";
-import hiddenRemoveHandler from "./hidden-remove.ts";
+import favoriteAddHandler from "./favorite-add";
+import favoriteRemoveHandler from "./favorite-remove";
+import hiddenAddHandler from "./hidden-add";
+import hiddenRemoveHandler from "./hidden-remove";
 
 const router = Router();
 

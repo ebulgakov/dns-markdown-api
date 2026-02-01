@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import updateNotificationHandler from "./notifications-update.ts";
-import toggleShownBoughtFavoritesHandler from "./toggle-shown-bought-favorites.ts";
+import updateNotificationHandler from "./notifications-update";
+import toggleShownBoughtFavoritesHandler from "./toggle-shown-bought-favorites";
 import userByIdHandler from "./user-by-id";
 
 const router = Router();

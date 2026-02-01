@@ -1,6 +1,6 @@
-import { User } from "../../db/models/user.ts";
+import { User } from "../../db/models/user";
 
-import type { UserSectionsPayload } from "./types.ts";
+import type { UserSectionsPayload } from "./types";
 import type { NextFunction, Request, Response } from "express";
 
 async function favoriteAddHandler(req: Request, res: Response, next: NextFunction) {
