@@ -8,7 +8,13 @@ async function allPriceListsHandler(req: Request, res: Response, next: NextFunct
     const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
-    const priceLists = await Pricelist.find({ city }, {}, { sort: { updatedAt: -1 } }).exec();
+    const limit = parseInt(`${req.query.limit ?? ""}`.trim(), 10);
+
+    const priceLists = await Pricelist.find(
+      { city },
+      {},
+      { sort: { updatedAt: -1 }, ...(isNaN(limit) ? {} : { limit }) }
+    ).exec();
     res.json(priceLists);
   } catch (error) {
     next(error);
