@@ -6,14 +6,14 @@ import type { NextFunction, Request, Response } from "express";
 
 async function allAnalysisGoodsByDateAddedHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city, dateAdded } = req.query as { city?: unknown; dateAdded?: unknown };
+    const { city: cityRaw, dateAdded: dateAddedRaw } = req.body as {
+      city?: unknown;
+      dateAdded?: unknown;
+    };
+    const city = `${cityRaw ?? ""}`.trim();
+    const dateAdded = `${dateAddedRaw ?? ""}`.trim();
 
-    if (
-      typeof city !== "string" ||
-      typeof dateAdded !== "string" ||
-      !city.trim() ||
-      !dateAdded.trim()
-    ) {
+    if (!city || !dateAdded) {
       return res.status(400).send("city and dateAdded must be non-empty strings");
     }
 

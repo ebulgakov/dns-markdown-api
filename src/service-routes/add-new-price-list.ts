@@ -6,9 +6,10 @@ import type { NextFunction, Response, Request } from "express";
 
 async function addNewPriceListHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city, positions } = req.body as { city: string; positions: Position[] };
+    const { city: cityRaw, positions } = req.body as { city: string; positions: Position[] };
+    const city = cityRaw?.trim();
 
-    if (!city?.trim() || !Array.isArray(positions) || positions.length === 0) {
+    if (!city || !Array.isArray(positions) || positions.length === 0) {
       return res.status(400).send("city and positions are required");
     }
 

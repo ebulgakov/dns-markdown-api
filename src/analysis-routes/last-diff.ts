@@ -6,8 +6,9 @@ import type { NextFunction, Response, Request } from "express";
 
 async function lastAnalysisDiffHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const city = req.query.city as string;
-    if (!city?.trim()) return res.status(400).send("city is required");
+    const cityRaw = req.query.city as string;
+    const city = cityRaw?.trim();
+    if (!city) return res.status(400).send("city is required");
 
     const key = `daily:analysis:last:${String(city)}`;
     const cached = await cacheGet<AnalysisDiffType>(key);

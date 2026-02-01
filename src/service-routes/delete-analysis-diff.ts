@@ -4,9 +4,9 @@ import type { NextFunction, Response, Request } from "express";
 
 async function deleteAnalysisDiffHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city } = req.body as { city: string };
-
-    if (!city?.trim()) return res.status(400).send("city is required");
+    const { city: cityRaw } = req.body as { city: string };
+    const city = cityRaw?.trim();
+    if (!city) return res.status(400).send("city is required");
 
     await AnalysisDiff.deleteMany({ city }).exec();
 
