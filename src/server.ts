@@ -5,13 +5,14 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { env, isDev, isTestEnv } from "../env";
+// @ts-expect-error - fix vercel declaration issue
+import { clerkMiddleware } from "../vendors/clerk-express";
 
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
-import { clerkAsyncMiddleware } from "./middleware/user-middleware";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
@@ -57,7 +58,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api", authMiddleware);
-app.use("/user-actions", clerkAsyncMiddleware);
+app.use("/user-actions", clerkMiddleware());
 
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
