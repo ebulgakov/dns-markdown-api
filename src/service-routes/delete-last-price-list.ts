@@ -12,7 +12,11 @@ async function deleteLastPriceListHandler(req: Request, res: Response, next: Nex
     await Pricelist.findOneAndDelete({ city }, { sort: { updatedAt: -1 } }).exec();
 
     const key = `daily:pricelist:last:${String(city)}`;
-    await cacheDelete(key);
+    try {
+      await cacheDelete(key);
+    } catch (cacheError) {
+      console.warn("Failed to invalidate pricelist cache", { key, cacheError });
+    }
 
     res.sendStatus(200);
   } catch (error) {

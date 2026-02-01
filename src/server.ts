@@ -42,8 +42,6 @@ app.use(helmet());
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
-app.use(express.json());
-
 // Use a raw body parser for the Cleak webhook route
 app.use("/clerk/create-user", express.raw({ type: "application/json" }));
 

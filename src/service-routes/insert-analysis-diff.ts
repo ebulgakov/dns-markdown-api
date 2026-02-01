@@ -10,7 +10,7 @@ async function insertAnalysisDiffHandler(req: Request, res: Response, next: Next
     };
 
     if (!Array.isArray(diff) || diff.length === 0) {
-      return res.status(400).send("analysisDiff must be a non-empty array");
+      return res.status(400).send("diff must be a non-empty array");
     }
 
     await AnalysisDiff.insertMany(diff);

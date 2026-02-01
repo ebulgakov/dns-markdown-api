@@ -21,7 +21,11 @@ async function addNewPriceListHandler(req: Request, res: Response, next: NextFun
     await priceList.save();
 
     const key = `daily:pricelist:last:${String(city)}`;
-    await cacheDelete(key);
+    try {
+      await cacheDelete(key);
+    } catch (cacheError) {
+      console.warn("Failed to invalidate pricelist cache", { key, cacheError });
+    }
 
     res.status(201).json(priceList);
   } catch (error) {

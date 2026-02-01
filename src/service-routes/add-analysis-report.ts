@@ -18,7 +18,11 @@ async function addAnalysisReportHandler(req: Request, res: Response, next: NextF
     await newReport.save();
 
     const key = `daily:analysis:reports:${String(city)}`;
-    await cacheDelete(key);
+    try {
+      await cacheDelete(key);
+    } catch (cacheError) {
+      console.warn("Failed to invalidate pricelist cache", { key, cacheError });
+    }
 
     res.sendStatus(200);
   } catch (error) {

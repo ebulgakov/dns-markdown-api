@@ -31,7 +31,11 @@ async function deleteAnalysisReportByCityDateHandler(
     const key = `daily:analysis:reports:${String(city)}`;
 
     // TODO: add invalidation of related cache entries
-    await cacheDelete(key);
+    try {
+      await cacheDelete(key);
+    } catch (cacheError) {
+      console.warn("Failed to invalidate pricelist cache", { key, cacheError });
+    }
 
     res.sendStatus(200);
   } catch (error) {
