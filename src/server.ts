@@ -16,7 +16,7 @@ import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
 import userRoutes from "./user-routes";
-import userSectionsRoutes from "./user-sections";
+import userSectionsRoutes from "./user-sections-routes";
 
 import "../instrument";
 
