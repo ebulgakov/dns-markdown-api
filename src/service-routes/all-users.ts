@@ -1,4 +1,4 @@
-import { User } from "../../db/models/user.ts";
+import { User } from "../../db/models/user";
 
 import type { NextFunction, Response, Request } from "express";
 

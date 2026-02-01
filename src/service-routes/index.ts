@@ -1,18 +1,18 @@
 import { Router } from "express";
 
-import addAnalysisReportHandler from "./add-analysis-report.ts";
-import addNewPriceListHandler from "./add-new-price-list.ts";
+import addAnalysisReportHandler from "./add-analysis-report";
+import addNewPriceListHandler from "./add-new-price-list";
 import allPriceListsHandler from "./all-price-lists";
-import allUsersHandler from "./all-users.ts";
-import deleteAnalysisDataByDateHandler from "./delete-analysis-data-by-date.ts";
-import deleteAnalysisDataHandler from "./delete-analysis-data.ts";
-import deleteAnalysisDiffByDateHandler from "./delete-analysis-diff-by-date.ts";
-import deleteAnalysisDiffHandler from "./delete-analysis-diff.ts";
-import deleteAnalysisReportByCityDateHandler from "./delete-analysis-report-by-city-date.ts";
-import deleteLastPriceListHandler from "./delete-last-price-list.ts";
-import insertAnalysisDataHandler from "./insert-analysis-data.ts";
-import insertAnalysisDiffHandler from "./insert-analysis-diff.ts";
-import updateUsersFavoritesHandler from "./update-users-favorites.ts";
+import allUsersHandler from "./all-users";
+import deleteAnalysisDataHandler from "./delete-analysis-data";
+import deleteAnalysisDataByDateHandler from "./delete-analysis-data-by-date";
+import deleteAnalysisDiffHandler from "./delete-analysis-diff";
+import deleteAnalysisDiffByDateHandler from "./delete-analysis-diff-by-date";
+import deleteAnalysisReportByCityDateHandler from "./delete-analysis-report-by-city-date";
+import deleteLastPriceListHandler from "./delete-last-price-list";
+import insertAnalysisDataHandler from "./insert-analysis-data";
+import insertAnalysisDiffHandler from "./insert-analysis-diff";
+import updateUsersFavoritesHandler from "./update-users-favorites";
 
 const router = Router();
 

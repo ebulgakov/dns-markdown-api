@@ -1,4 +1,4 @@
-import { AnalysisData } from "../../db/models/analysis-data.ts";
+import { AnalysisData } from "../../db/models/analysis-data";
 
 import type { NextFunction, Response, Request } from "express";
 

@@ -1,4 +1,4 @@
-import { Reports } from "../../db/models/reports.ts";
+import { Reports } from "../../db/models/reports";
 
 import type { NextFunction, Response, Request } from "express";
 

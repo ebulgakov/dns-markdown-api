@@ -1,6 +1,6 @@
-import { AnalysisData } from "../../db/models/analysis-data.ts";
+import { AnalysisData } from "../../db/models/analysis-data";
 
-import type { AnalysisData as AnalysisDataType } from "../../types/analysis-data.ts";
+import type { AnalysisData as AnalysisDataType } from "../../types/analysis-data";
 import type { NextFunction, Response, Request } from "express";
 
 async function insertAnalysisDataHandler(req: Request, res: Response, next: NextFunction) {
