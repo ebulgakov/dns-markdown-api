@@ -1,31 +1,21 @@
 import { User } from "../../db/models/user";
 
-import type { Goods } from "../../types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function addFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { product: productRaw, userId } = req.body;
+    const { product, userId } = req.body;
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
     }
 
-    if (typeof productRaw !== "object" || productRaw === null) {
+    if (typeof product !== "object" || product === null) {
       return res.status(400).send("product is required and must be a valid object.");
     }
 
-    // Validate that product has a valid 'city' property
-    const { city } = productRaw as Partial<Goods>;
-    if (typeof city !== "string" || !city.trim()) {
-      return res.status(400).send("product must have a valid 'city' property.");
-    }
-
-    const product = productRaw as Goods;
-
     const item = {
       status: {
-        city: product.city,
         deleted: false,
         createdAt: new Date()
       },

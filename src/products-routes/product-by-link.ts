@@ -6,6 +6,7 @@ import getFlatCatalog from "./helpers/get-flat-catalog";
 import type { AnalysisData as AnalysisDataType } from "../../types/analysis-data";
 import type { DiffHistory } from "../../types/analysis-diff";
 import type { ProductPayload } from "../../types/product";
+import type { FavoriteStatus } from "../../types/user";
 import type { NextFunction, Request, Response } from "express";
 
 async function productByLinkHandler(req: Request, res: Response, next: NextFunction) {
@@ -35,9 +36,7 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
     const flatCatalog = await getFlatCatalog(product.city);
     const ifExists = flatCatalog.find(item => item.link === link);
 
-    const status = {
-      city: product.city,
-      updates: [],
+    const status: FavoriteStatus = {
       createdAt: history[0]!.dateAdded, // non-null assertion as history has at least one entry here
       updatedAt: history[history.length - 1]!.dateAdded, // non-null assertion as history has at least one entry here
       deleted: !ifExists
