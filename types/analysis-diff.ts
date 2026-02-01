@@ -6,8 +6,6 @@ export type Diff = {
   profit: string;
 };
 
-export type DiffsCollection = { [key: string]: Diff };
-
 export type DiffDetail = {
   item: AnalysisData;
   diff: Diff;

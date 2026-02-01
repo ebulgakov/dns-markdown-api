@@ -11,8 +11,10 @@ import clerkRoutes from "./clerk-routes";
 import favoritesRoutes from "./favorites";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
+import { serviceMiddleware } from "./middleware/service-middleware";
 import priceListRoutes from "./pricelist";
 import productsRoutes from "./products";
+import serviceRoutes from "./service-routes";
 import userRoutes from "./user";
 import userSectionsRoutes from "./user-sections";
 
@@ -35,7 +37,10 @@ app.use(
 );
 
 app.use(helmet());
-app.use(express.json());
+
+// Set limit to 20MB
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
 // Use a raw body parser for the Cleak webhook route
 app.use("/clerk/create-user", express.raw({ type: "application/json" }));
@@ -59,8 +64,10 @@ app.use("/api/user", userRoutes);
 app.use("/api/user/favorites", favoritesRoutes);
 app.use("/api/user/sections", userSectionsRoutes);
 app.use("/api/analysis", analysisRoutes);
-
 app.use("/clerk", clerkRoutes);
+
+app.use("/service", serviceMiddleware);
+app.use("/service", serviceRoutes);
 
 Sentry.setupExpressErrorHandler(app);
 

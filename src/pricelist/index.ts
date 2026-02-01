@@ -9,7 +9,8 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const city = req.query.city as string;
+    const cityRaw = req.query.city;
+    const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
     const key = `daily:pricelist:last:${String(city)}`;
@@ -31,7 +32,8 @@ router.get("/", async (req, res, next) => {
 
 router.get("/list", async (req, res, next) => {
   try {
-    const city = req.query.city as string;
+    const cityRaw = req.query.city;
+    const city = `${cityRaw ?? ""}`.trim();
     if (!city) return res.status(400).send("city is required");
 
     const key = `daily:archive:list:${String(city)}`;
