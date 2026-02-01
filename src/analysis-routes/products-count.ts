@@ -17,7 +17,6 @@ async function productsCountHandler(req: Request, res: Response, next: NextFunct
     const priceLists = (await Pricelist.find({ city }, {}, { sort: { updatedAt: -1 }, limit: 30 })
       .lean()
       .exec()) as PriceListType[];
-    if (!priceLists) return res.status(404).send("No archived price lists found");
 
     const productsCountByDates: PriceListsArchiveCount[] = priceLists
       .map(priceList => {

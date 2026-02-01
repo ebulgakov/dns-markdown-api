@@ -60,16 +60,6 @@ describe("totalUniqProductsCountHandler", () => {
     expect(find).not.toHaveBeenCalled();
   });
 
-  test("should return 404 if no data found in db", async () => {
-    req.query = { city: "TestCity" };
-    exec.mockResolvedValueOnce(null);
-
-    await totalUniqProductsCountHandler(req as Request, res as Response, next);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.send).toHaveBeenCalledWith("No archived price lists found");
-  });
-
   test("should calculate unique count, cache it, and return it", async () => {
     req.query = { city: "TestCity" };
     const mockData = [{ link: "link1" }, { link: "link2" }, { link: "link1" }];
