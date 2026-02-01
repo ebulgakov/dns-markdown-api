@@ -9,16 +9,13 @@ async function favoriteAddHandler(req: Request, res: Response, next: NextFunctio
 
     if (!userId || !title) return res.status(400).send("userId and title are required");
 
-    const user = await User.findOne({ userId }).exec();
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { $addToSet: { favoriteSections: title } },
+      { new: true }
+    ).exec();
 
     if (!user) return res.status(404).send("User not found");
-
-    if (!user.favoriteSections.includes(title)) {
-      user.favoriteSections.push(title);
-    }
-
-    await user.save();
-
     res.json({ message: "Section added to favorite sections", sections: user.favoriteSections });
   } catch (error) {
     next(error);

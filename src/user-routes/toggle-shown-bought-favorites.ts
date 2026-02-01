@@ -9,7 +9,7 @@ async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, ne
       status: boolean;
     };
 
-    if (!userId || status === undefined)
+    if (!userId || typeof status !== "boolean")
       return res.status(400).send("userId and status are required");
 
     const user = await User.findOne({ userId }).exec();

@@ -9,14 +9,13 @@ async function hiddenRemoveHandler(req: Request, res: Response, next: NextFuncti
 
     if (!userId || !title) return res.status(400).send("userId and title are required");
 
-    const user = await User.findOne({ userId }).exec();
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { $pull: { hiddenSections: title } },
+      { new: true }
+    ).exec();
 
     if (!user) return res.status(404).send("User not found");
-
-    user.hiddenSections = user.hiddenSections.filter((section: string) => section !== title);
-
-    await user.save();
-
     res.json({
       message: "Section removed from hidden sections",
       sections: user.hiddenSections
