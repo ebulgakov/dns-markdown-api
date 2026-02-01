@@ -11,7 +11,7 @@ import clerkRoutes from "./clerk-routes";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
-import { userMiddleware } from "./middleware/user-middleware";
+import { clerkAsyncMiddleware } from "./middleware/user-middleware";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
@@ -57,7 +57,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api", authMiddleware);
-app.use("/user-actions", userMiddleware);
+app.use("/user-actions", clerkAsyncMiddleware);
 
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
