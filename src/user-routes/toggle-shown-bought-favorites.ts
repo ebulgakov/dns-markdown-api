@@ -12,12 +12,13 @@ async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, ne
     if (!userId || typeof status !== "boolean")
       return res.status(400).send("userId and status are required");
 
-    const user = await User.findOne({ userId }).exec();
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { $set: { shownBoughtFavorites: status } },
+      { new: true }
+    ).exec();
 
     if (!user) return res.status(404).send("User not found");
-
-    user.shownBoughtFavorites = status;
-    await user.save();
 
     res.json({
       message: "Show bought favorites status updated",

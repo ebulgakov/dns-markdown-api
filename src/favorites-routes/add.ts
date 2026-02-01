@@ -11,10 +11,6 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
     };
     if (!userId || !product) return res.status(400).send("userId and product are required");
 
-    const user = await User.findOne({ userId }).exec();
-
-    if (!user) return res.status(404).send("User not found");
-
     const item = {
       status: {
         city: product.city,
@@ -23,9 +19,13 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
       },
       item: product
     };
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { $push: { favorites: item } },
+      { new: true }
+    ).exec();
 
-    user.favorites.push(item);
-    await user.save();
+    if (!user) return res.status(404).send("User not found");
 
     res.json({ message: "Item added to favorites", favorites: user.favorites });
   } catch (error) {

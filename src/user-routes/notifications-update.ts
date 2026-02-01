@@ -12,12 +12,13 @@ async function updateNotificationHandler(req: Request, res: Response, next: Next
     if (!userId || !notifications)
       return res.status(400).send("userId and notifications are required");
 
-    const user = await User.findOne({ userId }).exec();
+    const user = await User.findOneAndUpdate(
+      { userId },
+      { $set: { notifications } },
+      { new: true }
+    ).exec();
 
     if (!user) return res.status(404).send("User not found");
-
-    user.notifications = notifications;
-    await user.save();
 
     res.json({ message: "Notifications updated", notifications: user.notifications });
   } catch (error) {
