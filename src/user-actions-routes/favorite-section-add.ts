@@ -1,10 +1,12 @@
+import { getAuth } from "@clerk/express";
+
 import { User } from "../../db/models/user";
 
 import type { NextFunction, Request, Response } from "express";
 async function favoriteAddHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const { title } = req.body;
-    const { userId } = req.auth || {};
+    const { userId } = getAuth(req);
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");

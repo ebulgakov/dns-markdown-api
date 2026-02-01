@@ -1,3 +1,4 @@
+import { clerkMiddleware } from "@clerk/express";
 import * as Sentry from "@sentry/node";
 import cors from "cors";
 import express from "express";
@@ -5,8 +6,6 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { env, isDev, isTestEnv } from "../env";
-// @ts-expect-error - fix vercel declaration issue
-import { clerkMiddleware } from "../vendors/clerk-express";
 
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
