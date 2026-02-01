@@ -13,7 +13,7 @@ async function allNotificationUsersHandler(req: Request, res: Response, next: Ne
       {},
       { sort: { updatedAt: -1 } }
     )
-      .select("favorites email")
+      .select("favorites email userId")
       .exec();
     res.json(users);
   } catch (error) {
