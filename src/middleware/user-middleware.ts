@@ -1,10 +1,8 @@
-import { createClerkClient } from "@clerk/clerk-sdk-node";
+import { verifyToken } from "@clerk/backend";
 
 import { env } from "../../env";
 
 import type { NextFunction, Request, Response } from "express";
-
-const clerk = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
 
 export const userMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -16,9 +14,11 @@ export const userMiddleware = async (req: Request, res: Response, next: NextFunc
   const sessionToken = authHeader.split(" ")[1];
 
   try {
-    const claims = await clerk.verifyToken(`${sessionToken}`);
+    const verifiedToken = await verifyToken(sessionToken!, {
+      secretKey: env.CLERK_SECRET_KEY,
+    });
 
-    req.auth = { userId: claims.sub };
+    req.auth = { userId: verifiedToken.sub };
 
     next();
   } catch (error) {

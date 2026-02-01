@@ -15,7 +15,7 @@ import { userMiddleware } from "./middleware/user-middleware";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
-import useActionsRoutes from "./user-actions-routes";
+import userActionsRoutes from "./user-actions-routes";
 import userRoutes from "./user-routes";
 
 import "../instrument";
@@ -62,7 +62,7 @@ app.use("/user-actions", userMiddleware);
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/user", userRoutes);
-app.use("/user-actions", useActionsRoutes);
+app.use("/user-actions", userActionsRoutes);
 app.use("/api/analysis", analysisRoutes);
 app.use("/clerk", clerkRoutes);
 
