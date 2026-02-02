@@ -1,21 +1,18 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    // --- Переопределяем опции для сборки под Node.js ---
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "target": "ES2020", // Устанавливаем совместимую с Node.js версию
+    "target": "ES2020",
     "outDir": "./dist",
     "rootDir": "./src",
 
-    // --- Отключаем опции, специфичные для Bun/разработки ---
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
-    "erasableSyntaxOnly": false, // Важно для генерации реального JS-кода
+    "erasableSyntaxOnly": false,
     "moduleDetection": "auto",
 
-    // --- Сохраняем полезные опции ---
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
