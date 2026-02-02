@@ -3,7 +3,7 @@ import importPlugin from "eslint-plugin-import";
 import tseslint from "typescript-eslint";
 
 const eslintConfig = defineConfig([
-  globalIgnores(["coverage/**", "node_modules/**"]),
+  globalIgnores(["coverage/**", "node_modules/**", "dist/**"]),
   ...tseslint.configs.recommended,
   {
     files: ["**/*.ts"],
