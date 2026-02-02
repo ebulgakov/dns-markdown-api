@@ -2,7 +2,7 @@ import { expect, test, describe, mock, beforeEach } from "bun:test";
 
 import reportsHandler from "../reports";
 
-import type { ReportsResponse } from "../../types/reports";
+import type { ReportsResponse } from "@src/types/reports";
 import type { Mock } from "bun:test";
 import type { NextFunction, Request, Response } from "express";
 
@@ -15,12 +15,12 @@ const find = mock(() => ({ lean }));
 
 const Reports = { find };
 
-mock.module("../../cache", () => ({
+mock.module("@src/cache", () => ({
   cacheGet,
   cacheAdd
 }));
 
-mock.module("../../db/models/reports", () => ({
+mock.module("@src/db/models/reports", () => ({
   Reports
 }));
 

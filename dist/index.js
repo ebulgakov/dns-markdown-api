@@ -57200,9 +57200,6 @@ var analysis_routes_default = router;
 // src/clerk-routes/index.ts
 var import_express2 = __toESM(require_express2(), 1);
 
-// src/clerk-routes/create-user.ts
-var import_svix = __toESM(require_dist5(), 1);
-
 // src/db/models/user.ts
 import mongoose10 from "mongoose";
 
@@ -57261,6 +57258,7 @@ var user_default = userSchema;
 var User2 = mongoose10.models.User || mongoose10.model("User", user_default);
 
 // src/clerk-routes/create-user.ts
+var import_svix = __toESM(require_dist5(), 1);
 async function createUserWebhookHandler(req, res, next) {
   const svix_id = req.header("svix-id");
   const svix_timestamp = req.header("svix-timestamp");
@@ -57669,6 +57667,21 @@ async function clearCacheByKeyHandler(req, res, next) {
 }
 var clear_cache_by_key_default = clearCacheByKeyHandler;
 
+// src/service-routes/delete-analysis-data.ts
+async function deleteAnalysisDataHandler(req, res, next) {
+  try {
+    const { city: cityRaw } = req.body;
+    const city = `${cityRaw ?? ""}`.trim();
+    if (!city)
+      return res.status(400).send("city is required");
+    await AnalysisData.deleteMany({ city }).exec();
+    res.sendStatus(200);
+  } catch (error48) {
+    next(error48);
+  }
+}
+var delete_analysis_data_default = deleteAnalysisDataHandler;
+
 // src/service-routes/delete-analysis-data-by-date.ts
 async function deleteAnalysisDataByDateHandler(req, res, next) {
   try {
@@ -57690,20 +57703,20 @@ async function deleteAnalysisDataByDateHandler(req, res, next) {
 }
 var delete_analysis_data_by_date_default = deleteAnalysisDataByDateHandler;
 
-// src/service-routes/delete-analysis-data.ts
-async function deleteAnalysisDataHandler(req, res, next) {
+// src/service-routes/delete-analysis-diff.ts
+async function deleteAnalysisDiffHandler(req, res, next) {
   try {
     const { city: cityRaw } = req.body;
     const city = `${cityRaw ?? ""}`.trim();
     if (!city)
       return res.status(400).send("city is required");
-    await AnalysisData.deleteMany({ city }).exec();
+    await AnalysisDiff.deleteMany({ city }).exec();
     res.sendStatus(200);
   } catch (error48) {
     next(error48);
   }
 }
-var delete_analysis_data_default = deleteAnalysisDataHandler;
+var delete_analysis_diff_default = deleteAnalysisDiffHandler;
 
 // src/service-routes/delete-analysis-diff-by-date.ts
 async function deleteAnalysisDiffByDateHandler(req, res, next) {
@@ -57725,21 +57738,6 @@ async function deleteAnalysisDiffByDateHandler(req, res, next) {
   }
 }
 var delete_analysis_diff_by_date_default = deleteAnalysisDiffByDateHandler;
-
-// src/service-routes/delete-analysis-diff.ts
-async function deleteAnalysisDiffHandler(req, res, next) {
-  try {
-    const { city: cityRaw } = req.body;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city)
-      return res.status(400).send("city is required");
-    await AnalysisDiff.deleteMany({ city }).exec();
-    res.sendStatus(200);
-  } catch (error48) {
-    next(error48);
-  }
-}
-var delete_analysis_diff_default = deleteAnalysisDiffHandler;
 
 // src/service-routes/delete-analysis-report-by-city-date.ts
 async function deleteAnalysisReportByCityDateHandler(req, res, next) {

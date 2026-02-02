@@ -26,5 +26,11 @@
     // Make code clean
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+
+    // Add alias for paths
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"]
+    }
   }
 }

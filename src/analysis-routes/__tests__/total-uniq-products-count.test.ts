@@ -15,12 +15,12 @@ const find = mock(() => ({ select }));
 
 const AnalysisData = { find };
 
-mock.module("../../cache", () => ({
+mock.module("@src/cache", () => ({
   cacheGet,
   cacheAdd
 }));
 
-mock.module("../../db/models/analysis-data", () => ({
+mock.module("@src/db/models/analysis-data", () => ({
   AnalysisData
 }));
 

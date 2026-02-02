@@ -1,4 +1,4 @@
-import { dbConnect } from "../db/database";
+import { dbConnect } from "@src/db/database";
 
 import type { NextFunction, Request, Response } from "express";
 

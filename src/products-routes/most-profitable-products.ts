@@ -1,8 +1,8 @@
-import { cacheAdd, cacheGet } from "../cache";
+import { cacheAdd, cacheGet } from "@src/cache";
 
 import getFlatCatalog from "./helpers/get-flat-catalog";
 
-import type { Goods } from "../types/pricelist";
+import type { Goods } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function mostProfitableProductsHandler(req: Request, res: Response, next: NextFunction) {

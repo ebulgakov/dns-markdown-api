@@ -1,6 +1,5 @@
+import { env } from "@src/env";
 import mongoose from "mongoose";
-
-import { env } from "../env";
 
 global.mongoose = global.mongoose || {
   conn: null,

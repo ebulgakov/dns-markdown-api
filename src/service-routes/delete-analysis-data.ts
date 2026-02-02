@@ -1,4 +1,4 @@
-import { AnalysisData } from "../db/models/analysis-data";
+import { AnalysisData } from "@src/db/models/analysis-data";
 
 import type { NextFunction, Response, Request } from "express";
 

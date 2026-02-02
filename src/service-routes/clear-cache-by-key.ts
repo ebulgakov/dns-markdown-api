@@ -1,4 +1,4 @@
-import { cacheDelete, cacheKeys } from "../cache";
+import { cacheDelete, cacheKeys } from "@src/cache";
 
 import type { NextFunction, Request, Response } from "express";
 

@@ -8,7 +8,7 @@ import type { NextFunction, Request, Response } from "express";
 const save = mock(async () => {});
 const User = mock(() => ({ save }));
 
-mock.module("../../db/models/user", () => ({
+mock.module("@src/db/models/user", () => ({
   User
 }));
 
@@ -21,7 +21,7 @@ mock.module("svix", () => ({
   })
 }));
 
-mock.module("../../env", () => ({
+mock.module("@src/env", () => ({
   env: {
     CLERK_WEBHOOK_SIGNING_SECRET: "test_secret"
   }

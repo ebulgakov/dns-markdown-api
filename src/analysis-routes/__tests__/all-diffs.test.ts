@@ -5,7 +5,7 @@ import allAnalysisDiffsHandler from "../all-diffs";
 import type {
   AnalysisDiff as AnalysisDiffType,
   AnalysisDiffReport
-} from "../../types/analysis-diff";
+} from "@src/types/analysis-diff";
 import type { Mock } from "bun:test";
 import type { NextFunction, Request, Response } from "express";
 
@@ -18,12 +18,12 @@ const find = mock(() => ({ lean }));
 
 const AnalysisDiff = { find };
 
-mock.module("../../cache", () => ({
+mock.module("@src/cache", () => ({
   cacheGet,
   cacheAdd
 }));
 
-mock.module("../../db/models/analysis-diff", () => ({
+mock.module("@src/db/models/analysis-diff", () => ({
   AnalysisDiff
 }));
 

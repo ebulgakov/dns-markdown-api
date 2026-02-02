@@ -1,7 +1,7 @@
-import { cacheAdd, cacheGet } from "../cache";
-import { Reports } from "../db/models/reports";
+import { cacheAdd, cacheGet } from "@src/cache";
+import { Reports } from "@src/db/models/reports";
 
-import type { ReportsResponse } from "../types/reports";
+import type { ReportsResponse } from "@src/types/reports";
 import type { NextFunction, Response, Request } from "express";
 
 async function reportsHandler(req: Request, res: Response, next: NextFunction) {

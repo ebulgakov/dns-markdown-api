@@ -1,6 +1,6 @@
-import { User } from "../db/models/user";
+import { User } from "@src/db/models/user";
 
-import type { Favorite } from "../types/user";
+import type { Favorite } from "@src/types/user";
 import type { NextFunction, Response, Request } from "express";
 
 async function updateUsersFavoritesHandler(req: Request, res: Response, next: NextFunction) {

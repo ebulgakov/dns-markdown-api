@@ -1,7 +1,7 @@
-import { Webhook } from "svix";
 
-import { User } from "../db/models/user";
-import { env } from "../env";
+import { User } from "@src/db/models/user";
+import { env } from "@src/env";
+import { Webhook } from "svix";
 
 import type { WebhookEvent } from "@clerk/backend/webhooks";
 import type { NextFunction, Request, Response } from "express";
