@@ -1,10 +1,7 @@
-import { cacheAdd, cacheGet } from "../../cache";
-import { AnalysisDiff } from "../../db/models/analysis-diff";
+import { cacheAdd, cacheGet } from "../cache";
+import { AnalysisDiff } from "../db/models/analysis-diff";
 
-import type {
-  AnalysisDiff as AnalysisDiffType,
-  AnalysisDiffReport
-} from "../../types/analysis-diff";
+import type { AnalysisDiff as AnalysisDiffType, AnalysisDiffReport } from "../types/analysis-diff";
 import type { NextFunction, Request, Response } from "express";
 
 async function allAnalysisDiffsHandler(req: Request, res: Response, next: NextFunction) {

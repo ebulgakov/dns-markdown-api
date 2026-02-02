@@ -1,6 +1,6 @@
-import { AnalysisDiff } from "../../db/models/analysis-diff";
+import { AnalysisDiff } from "../db/models/analysis-diff";
 
-import type { AnalysisDiff as AnalysisDiffType } from "../../types/analysis-diff";
+import type { AnalysisDiff as AnalysisDiffType } from "../types/analysis-diff";
 import type { NextFunction, Response, Request } from "express";
 
 async function insertAnalysisDiffHandler(req: Request, res: Response, next: NextFunction) {

@@ -2,7 +2,7 @@ import { expect, test, describe, mock, beforeEach } from "bun:test";
 
 import productsCountHandler from "../products-count";
 
-import type { PriceList as PriceListType, PriceListsArchiveCount } from "../../../types/pricelist";
+import type { PriceList as PriceListType, PriceListsArchiveCount } from "../../types/pricelist";
 import type { Mock } from "bun:test";
 import type { NextFunction, Request, Response } from "express";
 
@@ -15,12 +15,12 @@ const find = mock(() => ({ lean }));
 
 const Pricelist = { find };
 
-mock.module("../../../cache", () => ({
+mock.module("../../cache", () => ({
   cacheGet,
   cacheAdd
 }));
 
-mock.module("../../../db/models/pricelist", () => ({
+mock.module("../../db/models/pricelist", () => ({
   Pricelist
 }));
 

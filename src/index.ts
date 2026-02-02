@@ -1,5 +1,4 @@
-import { env } from "../env";
-
+import { env } from "./env";
 import app from "./server";
 
 if (env.NODE_ENV !== "production") {

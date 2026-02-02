@@ -1,4 +1,4 @@
-import { Pricelist } from "../../db/models/pricelist";
+import { Pricelist } from "../db/models/pricelist";
 
 import type { NextFunction, Request, Response } from "express";
 

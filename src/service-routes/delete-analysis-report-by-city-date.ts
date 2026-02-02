@@ -1,5 +1,5 @@
-import { cacheDelete } from "../../cache";
-import { Reports } from "../../db/models/reports";
+import { cacheDelete } from "../cache";
+import { Reports } from "../db/models/reports";
 
 import type { NextFunction, Response, Request } from "express";
 

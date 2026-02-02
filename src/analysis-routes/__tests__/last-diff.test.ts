@@ -2,7 +2,7 @@ import { expect, test, describe, mock, beforeEach } from "bun:test";
 
 import lastAnalysisDiffHandler from "../last-diff";
 
-import type { AnalysisDiff as AnalysisDiffType } from "../../../types/analysis-diff";
+import type { AnalysisDiff as AnalysisDiffType } from "../../types/analysis-diff";
 import type { Mock } from "bun:test";
 import type { NextFunction, Request, Response } from "express";
 
@@ -15,12 +15,12 @@ const findOne = mock(() => ({ lean }));
 
 const AnalysisDiff = { findOne };
 
-mock.module("../../../cache", () => ({
+mock.module("../../cache", () => ({
   cacheGet,
   cacheAdd
 }));
 
-mock.module("../../../db/models/analysis-diff", () => ({
+mock.module("../../db/models/analysis-diff", () => ({
   AnalysisDiff
 }));
 

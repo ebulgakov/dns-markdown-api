@@ -1,4 +1,4 @@
-import { AnalysisDiff } from "../../db/models/analysis-diff";
+import { AnalysisDiff } from "../db/models/analysis-diff";
 
 import type { NextFunction, Response, Request } from "express";
 

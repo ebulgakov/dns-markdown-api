@@ -5,10 +5,9 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import { env, isDev, isTestEnv } from "../env";
-
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
+import { env, isDev, isTestEnv } from "./env";
 import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
@@ -18,7 +17,7 @@ import serviceRoutes from "./service-routes";
 import userActionsRoutes from "./user-actions-routes";
 import userRoutes from "./user-routes";
 
-import "../instrument";
+import "./instrument";
 
 import type { NextFunction, Request, Response } from "express";
 

@@ -1,7 +1,7 @@
-import { cacheDelete } from "../../cache";
-import { Pricelist } from "../../db/models/pricelist";
+import { cacheDelete } from "../cache";
+import { Pricelist } from "../db/models/pricelist";
 
-import type { Position } from "../../types/pricelist";
+import type { Position } from "../types/pricelist";
 import type { NextFunction, Response, Request } from "express";
 
 async function addNewPriceListHandler(req: Request, res: Response, next: NextFunction) {

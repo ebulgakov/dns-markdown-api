@@ -1,6 +1,6 @@
 import { getAuth } from "@clerk/express";
 
-import { User } from "../../db/models/user";
+import { User } from "../db/models/user";
 
 import type { NextFunction, Request, Response } from "express";
 async function favoriteAddHandler(req: Request, res: Response, next: NextFunction) {

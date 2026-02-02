@@ -1,12 +1,12 @@
-import { cacheAdd, cacheGet } from "../../cache";
-import { AnalysisData } from "../../db/models/analysis-data";
+import { cacheAdd, cacheGet } from "../cache";
+import { AnalysisData } from "../db/models/analysis-data";
 
 import getFlatCatalog from "./helpers/get-flat-catalog";
 
-import type { AnalysisData as AnalysisDataType } from "../../types/analysis-data";
-import type { DiffHistory } from "../../types/analysis-diff";
-import type { ProductPayload } from "../../types/product";
-import type { FavoriteStatus } from "../../types/user";
+import type { AnalysisData as AnalysisDataType } from "../types/analysis-data";
+import type { DiffHistory } from "../types/analysis-diff";
+import type { ProductPayload } from "../types/product";
+import type { FavoriteStatus } from "../types/user";
 import type { NextFunction, Request, Response } from "express";
 
 async function productByLinkHandler(req: Request, res: Response, next: NextFunction) {

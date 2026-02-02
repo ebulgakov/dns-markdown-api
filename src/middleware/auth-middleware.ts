@@ -1,4 +1,4 @@
-import { env } from "../../env";
+import { env } from "../env";
 
 import type { NextFunction, Request, Response } from "express";
 
