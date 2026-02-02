@@ -6,13 +6,11 @@
     "target": "ES2020",
     "outDir": "./dist",
     "rootDir": "./src",
-
     "noEmit": false,
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
     "erasableSyntaxOnly": false,
     "moduleDetection": "auto",
-
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
