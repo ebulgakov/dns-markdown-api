@@ -1,6 +1,5 @@
+import { env } from "@src/env";
 import { Redis } from "@upstash/redis";
-
-import { env } from "../env";
 
 import type { SetCommandOptions } from "@upstash/redis";
 

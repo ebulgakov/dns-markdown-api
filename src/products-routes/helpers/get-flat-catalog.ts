@@ -1,6 +1,6 @@
-import { Pricelist } from "../../db/models/pricelist";
+import { Pricelist } from "@src/db/models/pricelist";
 
-import type { Goods, PriceList as PriceListType } from "../../types/pricelist";
+import type { Goods, PriceList as PriceListType } from "@src/types/pricelist";
 
 const getFlatCatalog = async (city: string): Promise<Goods[]> => {
   const priceList = (await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } })

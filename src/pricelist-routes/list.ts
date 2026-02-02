@@ -1,7 +1,7 @@
-import { cacheAdd, cacheGet } from "../cache";
-import { Pricelist } from "../db/models/pricelist";
+import { cacheAdd, cacheGet } from "@src/cache";
+import { Pricelist } from "@src/db/models/pricelist";
 
-import type { PriceListDate } from "../types/pricelist";
+import type { PriceListDate } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function listPriceListsHandler(req: Request, res: Response, next: NextFunction) {

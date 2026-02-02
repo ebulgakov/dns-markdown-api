@@ -1,5 +1,5 @@
-import { cacheDelete } from "../cache";
-import { Pricelist } from "../db/models/pricelist";
+import { cacheDelete } from "@src/cache";
+import { Pricelist } from "@src/db/models/pricelist";
 
 import type { NextFunction, Request, Response } from "express";
 

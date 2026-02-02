@@ -1,6 +1,5 @@
 import { getAuth } from "@clerk/express";
-
-import { User } from "../db/models/user";
+import { User } from "@src/db/models/user";
 
 import type { Request, Response, NextFunction } from "express";
 
