@@ -46558,7 +46558,6 @@ var envSchema = exports_external.object({
   PORT: exports_external.string().default("4000"),
   NODE_ENV: exports_external.enum(["development", "production", "test"]).default("development"),
   DATABASE_URL: exports_external.string().startsWith("mongodb"),
-  API_AUTH_SECRET: exports_external.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
   API_SERVICE_SECRET: exports_external.string().min(10, "API_SERVICE_SECRET must be at least 10 characters long"),
   UPSTASH_REDIS_REST_URL: exports_external.string().startsWith("https://"),
   UPSTASH_REDIS_REST_TOKEN: exports_external.string().min(10, "UPSTASH_REDIS_REST_TOKEN must be at least 10 characters long"),
@@ -57307,19 +57306,6 @@ var router2 = import_express2.Router();
 router2.post("/create-user", create_user_default);
 var clerk_routes_default = router2;
 
-// src/middleware/auth-middleware.ts
-var authMiddleware = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Missing or invalid Authorization header" });
-  }
-  const token = authHeader.split(" ")[1] || "";
-  if (!token || ![env.API_SERVICE_SECRET, env.API_AUTH_SECRET].includes(token)) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-};
-
 // src/db/database.ts
 import mongoose11 from "mongoose";
 global.mongoose = global.mongoose || {
@@ -57855,10 +57841,10 @@ router5.post("/update-users-favorites", update_users_favorites_default);
 router5.post("/clear-cache-by-key", clear_cache_by_key_default);
 var service_routes_default = router5;
 
-// src/user-actions-routes/index.ts
-var import_express14 = __toESM(require_express2(), 1);
+// src/user/index.ts
+var import_express15 = __toESM(require_express2(), 1);
 
-// src/user-actions-routes/favorite-add.ts
+// src/user/favorite-add.ts
 async function addFavoriteHandler(req, res, next) {
   try {
     const { product } = req.body;
@@ -57893,7 +57879,7 @@ async function addFavoriteHandler(req, res, next) {
 }
 var favorite_add_default = addFavoriteHandler;
 
-// src/user-actions-routes/favorite-remove.ts
+// src/user/favorite-remove.ts
 async function removeFavoriteHandler(req, res, next) {
   try {
     const { link } = req.body;
@@ -57914,7 +57900,7 @@ async function removeFavoriteHandler(req, res, next) {
 }
 var favorite_remove_default = removeFavoriteHandler;
 
-// src/user-actions-routes/favorite-section-add.ts
+// src/user/favorite-section-add.ts
 async function favoriteAddHandler(req, res, next) {
   try {
     const { title } = req.body;
@@ -57935,7 +57921,7 @@ async function favoriteAddHandler(req, res, next) {
 }
 var favorite_section_add_default = favoriteAddHandler;
 
-// src/user-actions-routes/favorite-section-remove.ts
+// src/user/favorite-section-remove.ts
 async function favoriteRemoveHandler(req, res, next) {
   try {
     const { title } = req.body;
@@ -57959,7 +57945,7 @@ async function favoriteRemoveHandler(req, res, next) {
 }
 var favorite_section_remove_default = favoriteRemoveHandler;
 
-// src/user-actions-routes/hidden-section-add.ts
+// src/user/hidden-section-add.ts
 async function hiddenAddHandler(req, res, next) {
   try {
     const { title } = req.body;
@@ -57980,7 +57966,7 @@ async function hiddenAddHandler(req, res, next) {
 }
 var hidden_section_add_default = hiddenAddHandler;
 
-// src/user-actions-routes/hidden-section-remove.ts
+// src/user/hidden-section-remove.ts
 async function hiddenRemoveHandler(req, res, next) {
   try {
     const { title } = req.body;
@@ -58004,7 +57990,7 @@ async function hiddenRemoveHandler(req, res, next) {
 }
 var hidden_section_remove_default = hiddenRemoveHandler;
 
-// src/user-actions-routes/notifications-update.ts
+// src/user/notifications-update.ts
 async function updateNotificationHandler(req, res, next) {
   try {
     const { notifications: notificationsRaw } = req.body;
@@ -58038,7 +58024,7 @@ async function updateNotificationHandler(req, res, next) {
 }
 var notifications_update_default = updateNotificationHandler;
 
-// src/user-actions-routes/toggle-shown-bought-favorites.ts
+// src/user/toggle-shown-bought-favorites.ts
 async function toggleShownBoughtFavoritesHandler(req, res, next) {
   try {
     const { status } = req.body;
@@ -58062,8 +58048,26 @@ async function toggleShownBoughtFavoritesHandler(req, res, next) {
 }
 var toggle_shown_bought_favorites_default = toggleShownBoughtFavoritesHandler;
 
-// src/user-actions-routes/index.ts
-var router6 = import_express14.Router();
+// src/user/user.ts
+async function userByIdHandler(req, res, next) {
+  try {
+    const { userId } = getAuth(req);
+    if (typeof userId !== "string" || !userId.trim()) {
+      return res.status(401).send("Authentication required. User identity not found.");
+    }
+    const user = await User2.findOne({ userId: userId.trim() }).lean().exec();
+    if (!user)
+      return res.status(404).send("User not found");
+    res.json(user);
+  } catch (error48) {
+    next(error48);
+  }
+}
+var user_default2 = userByIdHandler;
+
+// src/user/index.ts
+var router6 = import_express15.Router();
+router6.post("/", user_default2);
 router6.post("/notifications-update", notifications_update_default);
 router6.post("/toggle-shown-bought-favorites", toggle_shown_bought_favorites_default);
 router6.post("/hidden-section-add", hidden_section_add_default);
@@ -58072,31 +58076,7 @@ router6.post("/favorite-section-add", favorite_section_add_default);
 router6.post("/favorite-section-remove", favorite_section_remove_default);
 router6.post("/favorite-add", favorite_add_default);
 router6.post("/favorite-remove", favorite_remove_default);
-var user_actions_routes_default = router6;
-
-// src/user-routes/index.ts
-var import_express15 = __toESM(require_express2(), 1);
-
-// src/user-routes/user-by-id.ts
-async function userByIdHandler(req, res, next) {
-  try {
-    const id = req.params.id;
-    if (!id)
-      return res.status(400).send("id is required");
-    const user = await User2.findOne({ userId: id }).lean().exec();
-    if (!user)
-      return res.status(404).send("User not found");
-    res.json(user);
-  } catch (error48) {
-    next(error48);
-  }
-}
-var user_by_id_default = userByIdHandler;
-
-// src/user-routes/index.ts
-var router7 = import_express15.Router();
-router7.get("/id/:id", user_by_id_default);
-var user_routes_default = router7;
+var user_default3 = router6;
 
 // src/instrument.ts
 import * as Sentry from "@sentry/node";
@@ -58126,13 +58106,11 @@ app.get("/health", (_req, res) => {
     service: "DNS Markdown API"
   });
 });
-app.use("/api", authMiddleware);
-app.use("/user-actions", clerkMiddleware());
+app.use("/api", clerkMiddleware());
 app.use("/api/pricelist", pricelist_routes_default);
 app.use("/api/products", products_routes_default);
-app.use("/api/user", user_routes_default);
-app.use("/user-actions", user_actions_routes_default);
 app.use("/api/analysis", analysis_routes_default);
+app.use("/api/user", user_default3);
 app.use("/clerk", clerk_routes_default);
 app.use("/service", serviceMiddleware);
 app.use("/service", service_routes_default);

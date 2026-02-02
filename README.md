@@ -1,20 +1,23 @@
 # dns-markdown-api
 
-To install dependencies:
+## Commands
+
+Install:
 
 ```bash
 bun install
 ```
 
-To run:
+Run dev build:
 
 ```bash
-bun run src/index.ts
+bun run dev
 ```
 
 ## Technologies
 
-* Bun
-* MongoDB
-* Typescript
-* Redis
+- Bun
+- MongoDB
+- Typescript
+- Redis
+- Clerk Auth

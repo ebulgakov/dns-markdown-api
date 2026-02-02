@@ -8,9 +8,11 @@ import hiddenSectionAddHandler from "./hidden-section-add";
 import hiddenSectionRemoveHandler from "./hidden-section-remove";
 import updateNotificationHandler from "./notifications-update";
 import toggleShownBoughtFavoritesHandler from "./toggle-shown-bought-favorites";
+import userByIdHandler from "./user";
 
 const router = Router();
 
+router.post("/", userByIdHandler);
 router.post("/notifications-update", updateNotificationHandler);
 router.post("/toggle-shown-bought-favorites", toggleShownBoughtFavoritesHandler);
 router.post("/hidden-section-add", hiddenSectionAddHandler);
