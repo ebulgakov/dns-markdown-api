@@ -5,6 +5,13 @@
   "dependencies": {
     "@clerk/backend": "^2.29.7",
     "@clerk/express": "^1.7.67",
+    "@opentelemetry/auto-instrumentations-node": "^0.69.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.211.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.211.0",
+    "@opentelemetry/resources": "^2.5.0",
+    "@opentelemetry/sdk-metrics": "^2.5.0",
+    "@opentelemetry/sdk-node": "^0.211.0",
+    "@opentelemetry/semantic-conventions": "^1.39.0",
     "@sentry/node": "^10.38.0",
     "@upstash/redis": "^1.36.1",
     "cors": "^2.8.6",

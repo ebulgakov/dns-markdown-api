@@ -45,7 +45,11 @@ const envSchema = z.object({
       }
       return val;
     })
-    .default([])
+    .default([]),
+
+  // OpenTelemetry (Grafana Cloud) - optional, only in production
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
+  OTEL_EXPORTER_OTLP_HEADERS: z.string().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;
