@@ -14,8 +14,7 @@ import { serviceMiddleware } from "./middleware/service-middleware";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
-import userActionsRoutes from "./user-actions-routes";
-import userRoutes from "./user-routes";
+import userActionsRoutes from "./user";
 
 import "./instrument";
 
@@ -56,12 +55,11 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api", authMiddleware);
-app.use("/user-actions", clerkMiddleware());
+app.use("/user", clerkMiddleware());
 
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
-app.use("/api/user", userRoutes);
-app.use("/user-actions", userActionsRoutes);
+app.use("/user", userActionsRoutes);
 app.use("/api/analysis", analysisRoutes);
 app.use("/clerk", clerkRoutes);
 
