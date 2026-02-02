@@ -14,6 +14,11 @@ if (isDev()) {
 }
 
 const envSchema = z.object({
+  OTEL_SERVICE_NAME: z.string().default("Dns-Markdown-API"),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().startsWith("https://"),
+  OTEL_EXPORTER_OTLP_HEADERS: z.string().default(""),
+  OTEL_METRICS_EXPORTER: z.string().default(""),
+  OTEL_SERVICE_VERSION: z.string().default("1.0.0"),
   CLERK_PUBLISHABLE_KEY: z
     .string()
     .min(10, "CLERK_PUBLISHABLE_KEY must be at least 10 characters long"),
