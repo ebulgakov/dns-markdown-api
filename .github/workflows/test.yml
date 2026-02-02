@@ -20,7 +20,6 @@ jobs:
         run: bun test
         env:
           CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET }}
-          API_AUTH_SECRET: ${{ secrets.API_AUTH_SECRET }}
           API_SERVICE_SECRET: ${{ secrets.API_SERVICE_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}

@@ -27,7 +27,6 @@ const envSchema = z.object({
   DATABASE_URL: z.string().startsWith("mongodb"),
 
   // Auth
-  API_AUTH_SECRET: z.string().min(10, "API_AUTH_SECRET must be at least 10 characters long"),
   API_SERVICE_SECRET: z.string().min(10, "API_SERVICE_SECRET must be at least 10 characters long"),
 
   // Upstash Redis

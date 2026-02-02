@@ -8,7 +8,6 @@ import morgan from "morgan";
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
 import { env, isDev, isTestEnv } from "./env";
-import { authMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { serviceMiddleware } from "./middleware/service-middleware";
 import priceListRoutes from "./pricelist-routes";
@@ -19,7 +18,6 @@ import userActionsRoutes from "./user";
 import "./instrument";
 
 import type { NextFunction, Request, Response } from "express";
-
 const app = express();
 
 // Add logging middleware
@@ -54,15 +52,19 @@ app.get("/health", (_req, res) => {
   });
 });
 
-app.use("/api", authMiddleware);
-app.use("/user", clerkMiddleware());
+// All public-facing routes will be under /api
+app.use("/api", clerkMiddleware());
 
+// Routes for data fetching (pricelist, products, analysis)
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
-app.use("/user", userActionsRoutes);
 app.use("/api/analysis", analysisRoutes);
+app.use("/api/user", userActionsRoutes);
+
+// Clerk webhooks
 app.use("/clerk", clerkRoutes);
 
+// Internal service routes
 app.use("/service", serviceMiddleware);
 app.use("/service", serviceRoutes);
 
