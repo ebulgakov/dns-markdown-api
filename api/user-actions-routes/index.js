@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const favorite_add_1 = __importDefault(require("./favorite-add"));
+const favorite_remove_1 = __importDefault(require("./favorite-remove"));
+const favorite_section_add_1 = __importDefault(require("./favorite-section-add"));
+const favorite_section_remove_1 = __importDefault(require("./favorite-section-remove"));
+const hidden_section_add_1 = __importDefault(require("./hidden-section-add"));
+const hidden_section_remove_1 = __importDefault(require("./hidden-section-remove"));
+const notifications_update_1 = __importDefault(require("./notifications-update"));
+const toggle_shown_bought_favorites_1 = __importDefault(require("./toggle-shown-bought-favorites"));
+const router = (0, express_1.Router)();
+router.post("/notifications-update", notifications_update_1.default);
+router.post("/toggle-shown-bought-favorites", toggle_shown_bought_favorites_1.default);
+router.post("/hidden-section-add", hidden_section_add_1.default);
+router.post("/hidden-section-remove", hidden_section_remove_1.default);
+router.post("/favorite-section-add", favorite_section_add_1.default);
+router.post("/favorite-section-remove", favorite_section_remove_1.default);
+router.post("/favorite-add", favorite_add_1.default);
+router.post("/favorite-remove", favorite_remove_1.default);
+exports.default = router;
