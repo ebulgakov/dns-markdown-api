@@ -8,8 +8,8 @@ import morgan from "morgan";
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
 import { env, isDev, isTestEnv } from "./env";
+import { authServiceMiddleware, authPublicMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
-import { serviceMiddleware } from "./middleware/service-middleware";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
@@ -26,7 +26,7 @@ app.use(morgan("dev", { skip: () => isTestEnv() }));
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Internal-API-Secret"],
     methods: ["GET", "POST", "OPTIONS"],
     credentials: true
   })
@@ -54,6 +54,8 @@ app.get("/health", (_req, res) => {
 
 // All public-facing routes will be under /api
 app.use("/api", clerkMiddleware());
+// Internal API authentication middleware
+app.use("/api", authPublicMiddleware);
 
 // Routes for data fetching (pricelist, products, analysis)
 app.use("/api/pricelist", priceListRoutes);
@@ -65,7 +67,7 @@ app.use("/api/user", userActionsRoutes);
 app.use("/clerk", clerkRoutes);
 
 // Internal service routes
-app.use("/service", serviceMiddleware);
+app.use("/service", authServiceMiddleware);
 app.use("/service", serviceRoutes);
 
 Sentry.setupExpressErrorHandler(app);
