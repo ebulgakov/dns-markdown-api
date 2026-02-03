@@ -1,39 +1,31 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { z } from "zod";
 
-import type { UserNotifications } from "@src/types/user";
 import type { NextFunction, Request, Response } from "express";
+
+const updateNotificationSchema = z.object({
+  notifications: z.object({
+    updates: z.object({
+      enabled: z.boolean()
+    })
+  })
+});
 
 async function updateNotificationHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { notifications: notificationsRaw } = req.body;
+    const validationResult = updateNotificationSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+
+    const { notifications } = validationResult.data;
     const { userId } = getAuth(req);
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
     }
-
-    if (typeof notificationsRaw !== "object" || notificationsRaw === null) {
-      return res.status(400).send("notifications is required and must be an object.");
-    }
-
-    const { updates } = notificationsRaw as UserNotifications;
-
-    if (typeof updates !== "object" || updates === null) {
-      return res.status(400).send("notifications must have an 'updates' object property.");
-    }
-
-    const { enabled } = updates as { enabled?: unknown };
-    if (typeof enabled !== "boolean") {
-      return res.status(400).send("notifications.updates must have an 'enabled' boolean property.");
-    }
-
-    // Avoid overwriting other notification settings by only updating the provided fields
-    const notifications: UserNotifications = {
-      updates: {
-        enabled
-      }
-    };
 
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },

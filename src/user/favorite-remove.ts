@@ -1,24 +1,31 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { z } from "zod";
 
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
+
+const removeFavoriteSchema = z.object({
+  link: z.string().trim().min(1, "link is required and must be a non-empty string.")
+});
 
 async function removeFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { link } = req.body;
+    const validationResult = removeFavoriteSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+
+    const { link } = validationResult.data;
     const { userId } = getAuth(req);
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
     }
 
-    if (typeof link !== "string" || !link.trim()) {
-      return res.status(400).send("link is required and must be a non-empty string.");
-    }
-
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
-      { $pull: { favorites: { "item.link": link.trim() } } },
+      { $pull: { favorites: { "item.link": link } } },
       { new: true, runValidators: true }
     ).exec();
 

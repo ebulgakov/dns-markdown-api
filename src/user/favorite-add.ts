@@ -1,19 +1,47 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 
+const reasonSchema = z.object({
+  _id: z.string(),
+  label: z.string(),
+  text: z.string()
+});
+
+const goodsSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+  link: z.string(),
+  description: z.string(),
+  reasons: z.array(reasonSchema),
+  priceOld: z.string(),
+  price: z.string(),
+  profit: z.string(),
+  code: z.string(),
+  image: z.string(),
+  available: z.string(),
+  city: z.string().optional()
+});
+
+const addFavoriteSchema = z.object({
+  product: goodsSchema
+});
+
 async function addFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { product } = req.body;
+    const validationResult = addFavoriteSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+
+    const { product } = validationResult.data;
     const { userId } = getAuth(req);
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
-    }
-
-    if (typeof product !== "object" || product === null || Array.isArray(product)) {
-      return res.status(400).send("product is required and must be a valid object.");
     }
 
     const item = {
