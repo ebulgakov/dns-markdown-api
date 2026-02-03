@@ -20,7 +20,8 @@ jobs:
         run: bun test
         env:
           CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET || '123456789009876543' }}
-          API_SERVICE_SECRET: ${{ secrets.API_SERVICE_SECRET || '123456789009876543' }}
+          API_SECRET_KEY: ${{ secrets.API_SERVICE_KEY || '123456789009876543' }}
+          API_SERVICE_KEY: ${{ secrets.API_SERVICE_KEY || '123456789009876543' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'mongodb://localhost:27017/local' }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL || 'https://....' }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN || '123456789009876543' }}
