@@ -1,24 +1,31 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 
+const favoriteSectionRemoveSchema = z.object({
+  title: z.string().trim().min(1, "title is required and must be a non-empty string.")
+});
+
 async function favoriteRemoveHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title } = req.body;
+    const validationResult = favoriteSectionRemoveSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+
+    const { title } = validationResult.data;
     const { userId } = getAuth(req);
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
     }
 
-    if (typeof title !== "string" || !title.trim()) {
-      return res.status(400).send("title is required and must be a non-empty string.");
-    }
-
     const user = await User.findOneAndUpdate(
       { userId: userId.trim() },
-      { $pull: { favoriteSections: title.trim() } },
+      { $pull: { favoriteSections: title } },
       { new: true, runValidators: true }
     ).exec();
 

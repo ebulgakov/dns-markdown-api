@@ -1,19 +1,26 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 
+const toggleShownBoughtFavoritesSchema = z.object({
+  status: z.boolean()
+});
+
 async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { status } = req.body;
+    const validationResult = toggleShownBoughtFavoritesSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+
+    const { status } = validationResult.data;
     const { userId } = getAuth(req);
 
     if (typeof userId !== "string" || !userId.trim()) {
       return res.status(401).send("Authentication required. User identity not found.");
-    }
-
-    if (typeof status !== "boolean") {
-      return res.status(400).send("Invalid 'status' value. It must be a boolean.");
     }
 
     const user = await User.findOneAndUpdate(
