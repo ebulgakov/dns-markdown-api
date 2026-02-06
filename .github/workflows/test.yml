@@ -19,6 +19,7 @@ jobs:
       - name: Run Bun tests
         run: bun test
         env:
+          CACHE_PREFIX: ${{ vars.CACHE_PREFIX || '' }}
           CLERK_WEBHOOK_SIGNING_SECRET: ${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET || '123456789009876543' }}
           API_SECRET_KEY: ${{ secrets.API_SERVICE_KEY || '123456789009876543' }}
           API_SERVICE_KEY: ${{ secrets.API_SERVICE_KEY || '123456789009876543' }}
