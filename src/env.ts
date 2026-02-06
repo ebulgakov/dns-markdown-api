@@ -36,6 +36,7 @@ const envSchema = z.object({
   API_SERVICE_KEY: z.string().min(10, "API_SERVICE_KEY must be at least 10 characters long"),
 
   // Upstash Redis
+  CACHE_PREFIX: z.string().default(""),
   UPSTASH_REDIS_REST_URL: z.string().startsWith("https://"),
   UPSTASH_REDIS_REST_TOKEN: z
     .string()
