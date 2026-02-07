@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import changeCityHandler from "./change-city";
 import addFavoriteHandler from "./favorite-add";
 import removeFavoriteHandler from "./favorite-remove";
 import favoriteSectionAddHandler from "./favorite-section-add";
@@ -21,5 +22,6 @@ router.post("/favorite-section-add", favoriteSectionAddHandler);
 router.post("/favorite-section-remove", favoriteSectionRemoveHandler);
 router.post("/favorite-add", addFavoriteHandler);
 router.post("/favorite-remove", removeFavoriteHandler);
+router.post("/change-city", changeCityHandler);
 
 export default router;
