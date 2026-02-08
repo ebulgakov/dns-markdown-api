@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
     favorites: [
       {
         status: {
+          city: {
+            type: String,
+            default: "samara"
+          },
           updatedAt: String,
           createdAt: String,
           deleted: Boolean
