@@ -1,7 +1,9 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { ObjectId } from "mongodb";
 import { z } from "zod";
 
+import type { Favorite } from "@src/types/user";
 import type { NextFunction, Request, Response } from "express";
 
 const reasonSchema = z.object({
@@ -22,7 +24,7 @@ const goodsSchema = z.object({
   code: z.string(),
   image: z.string(),
   available: z.string(),
-  city: z.string().optional()
+  city: z.string()
 });
 
 const addFavoriteSchema = z.object({
@@ -34,6 +36,7 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
     const validationResult = addFavoriteSchema.safeParse(req.body);
 
     if (!validationResult.success) {
+      console.error(validationResult.error);
       return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
 
@@ -44,12 +47,17 @@ async function addFavoriteHandler(req: Request, res: Response, next: NextFunctio
       return res.status(401).send("Authentication required. User identity not found.");
     }
 
-    const item = {
+    const { city, ...productWithoutCity } = product;
+
+    const item: Favorite = {
+      _id: new ObjectId().toHexString(),
       status: {
+        city,
         deleted: false,
-        createdAt: new Date()
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
       },
-      item: product
+      item: productWithoutCity
     };
     const user = await User.findOneAndUpdate(
       {
