@@ -1,5 +1,5 @@
 # dns-markdown-api
-<img width="2564" height="2308" alt="image" src="https://github.com/user-attachments/assets/37b4e45d-4a44-47fd-92d7-7a2a1791a92c" />
+<img width="2574" height="2342" alt="image" src="https://github.com/user-attachments/assets/a6922841-1aa0-4801-9577-50f47bc80b34" />
 
 ## Commands
 
