@@ -1,10 +1,11 @@
+import { env } from "@src/env.ts";
 import { Index } from "@upstash/vector";
 
-import type { Goods } from "@src/types/pricelist.ts";
+import type { Goods } from "@src/types/pricelist";
 
 const vector = new Index({
-  url: process.env.UPSTASH_VECTOR_REST_URL,
-  token: process.env.UPSTASH_VECTOR_REST_TOKEN
+  url: env.UPSTASH_VECTOR_REST_URL,
+  token: env.UPSTASH_VECTOR_REST_TOKEN
 });
 
 const getVectorItemsByIds = async (
