@@ -8,6 +8,7 @@ import morgan from "morgan";
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
 import { env, isDev, isTestEnv } from "./env";
+import llmRoutes from "./llm-routes";
 import { authServiceMiddleware, authPublicMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import priceListRoutes from "./pricelist-routes";
@@ -61,6 +62,7 @@ app.use("/api", authPublicMiddleware);
 app.use("/api/pricelist", priceListRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/analysis", analysisRoutes);
+app.use("/api/llm", llmRoutes);
 app.use("/api/user", userActionsRoutes);
 
 // Clerk webhooks

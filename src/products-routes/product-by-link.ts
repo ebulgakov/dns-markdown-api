@@ -40,7 +40,8 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
     const status: FavoriteStatus = {
       createdAt: history[0]!.dateAdded, // non-null assertion as history has at least one entry here
       updatedAt: history[history.length - 1]!.dateAdded, // non-null assertion as history has at least one entry here
-      deleted: !ifExists
+      deleted: !ifExists,
+      city: product.city
     };
 
     const payload: ProductPayload = {

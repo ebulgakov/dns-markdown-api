@@ -32,3 +32,6 @@ jobs:
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT || 'https://test-api-enviroment' }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS || 'https://....' }}
           OTEL_METRICS_EXPORTER: ${{ secrets.OTEL_METRICS_EXPORTER || 'otlp' }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || '123456789009876543' }}
+          UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL || 'https://....' }}
+          UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN || '123456789009876543' }}
