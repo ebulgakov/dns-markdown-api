@@ -18,4 +18,20 @@ const compareLLMGoods = async (data: string) => {
   return response?.choices[0]?.message?.content?.trim() || "";
 };
 
-export { compareLLMGoods };
+const describeLLMGood = async (data: string) => {
+  const prompt = `Опишите приведенный ниже товар, выделив его ключевые характеристики, преимущества и потенциальные недостатки. 
+  Составьте краткий отчет в формате Markdown, который поможет пользователю понять основные особенности товара и принять решение о покупке. 
+  Не упоминайте цены, если они не указаны. Весь отчет должен быть в формате Markdown - никаких HTML тегов. После отчёта больше ничего не предлагайте - этого достаточно.\n\n${data}\n\nОтчёт:`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: "Вы — опытный аналитик данных." },
+      { role: "user", content: prompt }
+    ]
+  });
+
+  return response?.choices[0]?.message?.content?.trim() || "";
+};
+
+export { compareLLMGoods, describeLLMGood };
