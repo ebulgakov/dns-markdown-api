@@ -5,10 +5,10 @@ export const convertGoodsToString = (goods: Goods, {}) => {
 
   str += `
   ${goods.title}
-  Описание: ${goods.description}
-  Цена: ${goods.price}р ${goods.priceOld ? `(Новый стоит: ${goods.priceOld}р)` : ""}
-  Дефекты: ${goods.reasons}
-  Ссылка: ${goods.link}
+  Description: ${goods.description}
+  Price: ${goods.price} RUB ${goods.priceOld ? `(New: ${goods.priceOld} RUB)` : ""}
+  Defects: ${goods.reasons}
+  Link: ${goods.link}
   `;
 
   return str;

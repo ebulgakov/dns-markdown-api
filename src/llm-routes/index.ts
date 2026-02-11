@@ -18,7 +18,7 @@ router.get("/compare-products", async (req, res) => {
   if (links.length < 2 || links.length > 5) {
     return res
       .status(400)
-      .json({ error: "At least tow products link is required for comparison and max five links" });
+      .json({ error: "At least two products link is required for comparison and max five links" });
   }
 
   const key = `llm:compare:${String(linksParam)}`;

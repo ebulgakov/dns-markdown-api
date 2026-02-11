@@ -3,14 +3,17 @@ import OpenAI from "openai";
 const openai = new OpenAI();
 
 const compareLLMGoods = async (data: string) => {
-  const prompt = `Сравните приведенные ниже товары и выделите ключевые различия, преимущества и недостатки каждого из них. 
-  Составьте краткий отчет в формате Markdown, который поможет пользователю понять, какой товар может быть лучшим выбором для покупки. 
-  Не упоминайте цены, если они не указаны. Весь отчет должен быть в формате Markdown - никаких HTML тегов. После отчёта больше ничего не предлагайте - этого достаточно.\n\n${data}\n\nОтчёт:`;
+  const prompt = `Compare the products below and highlight the key differences, pros, and cons of each.
+                  Compile a concise report in Markdown format that helps the user understand which product might be the best choice for purchase. 
+                  Do not mention prices unless they are explicitly listed. The entire report must be in Markdown—no HTML tags. Do not output anything else after the report.
+                  Report should be translated to Russian.
+                  ${data}
+                  Report:`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      { role: "system", content: "Вы — опытный аналитик данных." },
+      { role: "system", content: "You are an experienced data analyst." },
       { role: "user", content: prompt }
     ]
   });
@@ -19,14 +22,17 @@ const compareLLMGoods = async (data: string) => {
 };
 
 const describeLLMGood = async (data: string) => {
-  const prompt = `Опишите приведенный ниже товар, выделив его ключевые характеристики, преимущества и потенциальные недостатки. 
-  Составьте краткий отчет в формате Markdown, который поможет пользователю понять основные особенности товара и принять решение о покупке. 
-  Не упоминайте цены, если они не указаны. Весь отчет должен быть в формате Markdown - никаких HTML тегов. После отчёта больше ничего не предлагайте - этого достаточно.\n\n${data}\n\nОтчёт:`;
+  const prompt = `Describe the product below, highlighting its key features, pros, and potential cons. 
+                  Compile a concise report in Markdown format that helps the user understand the main features and make a purchasing decision. 
+                  Do not mention prices unless they are explicitly listed. The entire report must be in Markdown—no HTML tags. Do not output anything else after the report.
+                  Report should be translated to Russian.
+                  ${data}
+                  Report:`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      { role: "system", content: "Вы — опытный аналитик данных." },
+      { role: "system", content: "You are an experienced data analyst." },
       { role: "user", content: prompt }
     ]
   });
