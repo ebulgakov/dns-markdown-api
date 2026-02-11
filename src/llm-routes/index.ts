@@ -15,10 +15,10 @@ router.get("/compare-products", async (req, res) => {
   const linksStr = decodeURIComponent(`${req.query.links}`);
   const links = linksStr.split("|");
 
-  if (links.length < 1 || links.length > 5) {
+  if (links.length < 2 || links.length > 5) {
     return res
       .status(400)
-      .json({ error: "At least one product link is required for comparison and max five links" });
+      .json({ error: "At least tow products link is required for comparison and max five links" });
   }
 
   const key = `llm:compare:${String(linksParam)}`;
