@@ -20,8 +20,11 @@ bun run dev
 
 ## Technologies
 
+- Express
 - Bun
 - MongoDB
 - Typescript
 - Redis
 - Clerk Auth
+- Upstash Vector DB
+- OpenAI API
