@@ -14,7 +14,7 @@ import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middlew
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
-import userActionsRoutes from "./user";
+import userActionsRoutes from "./user-routes";
 
 import "./instrument";
 

@@ -19,7 +19,16 @@ async function compareProductsHandler(req: Request, res: Response, next: NextFun
       return res.status(400).json({ error: "Malformed 'links' query parameter" });
     }
 
-    const links = linksStr.split("|");
+    let links: unknown;
+    try {
+      links = JSON.parse(linksStr);
+    } catch {
+      return res.status(400).json({ error: "Input must be a JSON array of strings" });
+    }
+
+    if (!Array.isArray(links) || !links.every(link => typeof link === "string")) {
+      return res.status(400).json({ error: "Input must be a JSON array of strings" });
+    }
 
     if (links.length < 2 || links.length > 5) {
       return res.status(400).json({
