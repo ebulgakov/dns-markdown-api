@@ -14,7 +14,7 @@ async function totalUniqProductsCountHandler(req: Request, res: Response, next: 
     const cached = await cacheGet<number>(key);
     if (cached) return res.send(cached);
 
-    const data = (await AnalysisData.find({ city }, {}, { sort: { updatedAt: 1 } })
+    const data = (await AnalysisData.find({ city }, {}, {})
       .select("link")
       .lean()
       .exec()) as AnalysisDataType[];
