@@ -19,7 +19,7 @@ async function totalUniqProductsCountHandler(req: Request, res: Response, next: 
       { $count: "uniqueCount" }
     ])) as { uniqueCount: number }[];
 
-    const uniqueCount = foundItem ? foundItem.uniqueCount : 0;
+    const uniqueCount = foundItem?.uniqueCount ?? 0;
 
     await cacheAdd<number>(key, uniqueCount, { ex: 60 * 60 * 24 }); // 24 hours
 
