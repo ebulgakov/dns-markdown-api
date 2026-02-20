@@ -1,7 +1,6 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { AnalysisData } from "@src/db/models/analysis-data";
 
-import type { AnalysisData as AnalysisDataType } from "@src/types/analysis-data";
 import type { NextFunction, Request, Response } from "express";
 
 async function totalUniqProductsCountHandler(req: Request, res: Response, next: NextFunction) {
@@ -14,15 +13,13 @@ async function totalUniqProductsCountHandler(req: Request, res: Response, next: 
     const cached = await cacheGet<number>(key);
     if (cached) return res.send(cached);
 
-    const data = (await AnalysisData.find({ city }, {}, {})
-      .select("link")
-      .lean()
-      .exec()) as AnalysisDataType[];
+    const [foundItem] = (await AnalysisData.aggregate([
+      { $match: { city } },
+      { $group: { _id: "$link" } },
+      { $count: "uniqueCount" }
+    ])) as { uniqueCount: number }[];
 
-    const links = data.map(item => item.link) as string[];
-    const uniqueLinks = Array.from(new Set(links));
-
-    const uniqueCount = uniqueLinks.length;
+    const uniqueCount = foundItem ? foundItem.uniqueCount : 0;
 
     await cacheAdd<number>(key, uniqueCount, { ex: 60 * 60 * 24 }); // 24 hours
 
