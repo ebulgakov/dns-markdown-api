@@ -1,10 +1,9 @@
 import { cacheDelete } from "@src/cache";
-import { Pricelist } from "@src/db/models/pricelist";
 import { Reports } from "@src/db/models/reports";
 import { generateLLMReport } from "@src/llm";
 import { convertGoodsToString } from "@src/llm-routes/helpers/convert-to-string";
+import { getLastPriceList } from "@src/pricelist-routes/helpers/get-last-price-list";
 
-import type { PriceList as PriceListType } from "@src/types/pricelist";
 import type { NextFunction, Response, Request } from "express";
 
 async function addAnalysisReportHandler(req: Request, res: Response, next: NextFunction) {
@@ -14,9 +13,7 @@ async function addAnalysisReportHandler(req: Request, res: Response, next: NextF
 
     if (!city) return res.status(400).send("city is required");
 
-    const priceList = (await Pricelist.findOne({ city }, {}, { sort: { updatedAt: -1 } })
-      .lean()
-      .exec()) as PriceListType;
+    const priceList = await getLastPriceList(city);
     if (!priceList) return res.status(404).send("Price list not found");
 
     const payload = priceList.positions

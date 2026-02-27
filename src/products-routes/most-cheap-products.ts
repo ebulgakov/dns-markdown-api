@@ -1,10 +1,8 @@
 import { cacheAdd, cacheGet } from "@src/cache";
-
-import getFlatCatalog from "./helpers/get-flat-catalog";
+import { getLastPriceListFlat } from "@src/pricelist-routes/helpers/get-last-price-list";
 
 import type { Goods } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
-
 async function mostCheapProductsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const cityRaw = req.query.city;
@@ -15,7 +13,7 @@ async function mostCheapProductsHandler(req: Request, res: Response, next: NextF
     const cached = await cacheGet<Goods[]>(key);
     if (cached) return res.json(cached);
 
-    const flatCatalog = await getFlatCatalog(city);
+    const flatCatalog = await getLastPriceListFlat(city);
     const sortedByPrice = flatCatalog
       .filter(item => Number(item.price) && Number(item.price) > 0)
       .sort((a, b) => Number(a.price) - Number(b.price));

@@ -1,7 +1,6 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { AnalysisData } from "@src/db/models/analysis-data";
-
-import getFlatCatalog from "./helpers/get-flat-catalog";
+import { getLastPriceListFlat } from "@src/pricelist-routes/helpers/get-last-price-list";
 
 import type { AnalysisData as AnalysisDataType } from "@src/types/analysis-data";
 import type { DiffHistory } from "@src/types/analysis-diff";
@@ -34,7 +33,7 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
       };
     });
 
-    const flatCatalog = await getFlatCatalog(product.city);
+    const flatCatalog = await getLastPriceListFlat(product.city);
     const ifExists = flatCatalog.find(item => item.link === link);
 
     const status: FavoriteStatus = {
