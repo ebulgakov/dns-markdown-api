@@ -1,6 +1,5 @@
 import { cacheAdd, cacheGet } from "@src/cache";
-
-import getFlatCatalog from "./helpers/get-flat-catalog";
+import { getLastPriceListFlat } from "@src/pricelist-routes/helpers/get-last-price-list";
 
 import type { Goods } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
@@ -15,7 +14,7 @@ async function mostDiscountedProductsHandler(req: Request, res: Response, next: 
     const cached = await cacheGet<Goods[]>(key);
     if (cached) return res.json(cached);
 
-    const flatCatalog = await getFlatCatalog(city);
+    const flatCatalog = await getLastPriceListFlat(city);
     const withOldPrice = flatCatalog.filter(
       item => Number(item.priceOld) && Number(item.priceOld) > 0
     );
