@@ -21,12 +21,12 @@ async function addAnalysisReportHandler(req: Request, res: Response, next: NextF
       .map(convertGoodsToString)
       .join("");
 
-    // Remove existing report for the same city and date to avoid duplicates
-    await Reports.deleteMany({ city, dateAdded: priceList.createdAt }).exec();
-
     const report = await generateLLMReport(payload);
-    const newReport = new Reports({ city, dateAdded: priceList.createdAt, report });
-    await newReport.save();
+    await Reports.updateOne(
+      { city, dateAdded: priceList.createdAt },
+      { $set: { report } },
+      { upsert: true }
+    ).exec();
 
     const key = `daily:analysis:reports:${String(city)}`;
     try {

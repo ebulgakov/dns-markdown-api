@@ -6,4 +6,6 @@ const reportsSchema = new mongoose.Schema({
   report: { type: String, required: true }
 });
 
+reportsSchema.index({ city: 1, dateAdded: 1 }, { unique: true });
+
 export default reportsSchema;
