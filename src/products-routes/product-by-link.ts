@@ -21,7 +21,7 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
     const historyList = (await AnalysisData.find({ link }).lean().exec()) as AnalysisDataType[];
     historyList?.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
 
-    const product = historyList[historyList.length - 1];
+    const [product] = historyList;
     if (!product) return res.status(404).send("Product not found");
 
     const history: DiffHistory = historyList.map(entry => {
