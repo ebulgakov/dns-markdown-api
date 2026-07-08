@@ -79,7 +79,7 @@ curl -X GET "<BASE_URL>/health"
 - **Параметры query**:
   - `city` (string, required): город.
 - **Ответы**:
-  - `200` — JSON прайс-листа `PriceListType`.
+  - `200` — JSON прайс-листа `PriceListType`. Каждый товар в `positions[].items[]` дополнительно содержит `dateAdded` (дата первого изменения из `AnalysisData` по данному `link`/`city`, либо `null`, если данных нет).
   - `400` — `"city is required"`.
   - `404` — `"Price list not found"`.
 

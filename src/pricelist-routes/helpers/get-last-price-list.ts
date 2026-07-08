@@ -1,3 +1,4 @@
+import { AnalysisData } from "@src/db/models/analysis-data.ts";
 import { Pricelist } from "@src/db/models/pricelist.ts";
 
 import type { Goods, PriceList as PriceListType } from "@src/types/pricelist.ts";
@@ -11,4 +12,33 @@ export const getLastPriceListFlat = async (city: string): Promise<Goods[]> => {
   const priceList = await getLastPriceList(city);
   if (!priceList) return [];
   return priceList.positions.flatMap(position => position.items);
+};
+
+export const getLastPriceListWithDates = async (city: string): Promise<PriceListType | null> => {
+  const priceList = await getLastPriceList(city);
+  if (!priceList) return null;
+
+  const links = [
+    ...new Set(priceList.positions.flatMap(position => position.items.map(item => item.link)))
+  ];
+
+  const dateAddedResults = links.length
+    ? ((await AnalysisData.aggregate([
+        { $match: { city, link: { $in: links } } },
+        { $group: { _id: "$link", dateAdded: { $min: "$dateAdded" } } }
+      ])) as { _id: string; dateAdded: string }[])
+    : [];
+
+  const dateAddedByLink = new Map(dateAddedResults.map(entry => [entry._id, entry.dateAdded]));
+
+  return {
+    ...priceList,
+    positions: priceList.positions.map(position => ({
+      ...position,
+      items: position.items.map(item => ({
+        ...item,
+        dateAdded: dateAddedByLink.get(item.link) ?? null
+      }))
+    }))
+  };
 };
