@@ -35,16 +35,17 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
 
     const flatCatalog = await getLastPriceListFlat(product.city);
     const ifExists = flatCatalog.find(item => item.link === link);
+    const dateAdded = history[0]!.dateAdded; // non-null assertion as history has at least one entry here;
 
     const status: FavoriteStatus = {
-      createdAt: history[0]!.dateAdded, // non-null assertion as history has at least one entry here
+      createdAt: dateAdded,
       updatedAt: history[history.length - 1]!.dateAdded, // non-null assertion as history has at least one entry here
       deleted: !ifExists,
       city: product.city
     };
 
     const payload: ProductPayload = {
-      item: product,
+      item: { ...product, dateAdded },
       history,
       status
     };
