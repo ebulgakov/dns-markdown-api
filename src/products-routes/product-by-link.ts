@@ -18,11 +18,14 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
     const cached = await cacheGet<ProductPayload>(key);
     if (cached) return res.json(cached);
 
-    const historyList = (await AnalysisData.find({ link }).lean().exec()) as AnalysisDataType[];
-    historyList?.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
+    const historyList = (await AnalysisData.find({ link })
+      .sort({ dateAdded: 1 })
+      .lean()
+      .exec()) as AnalysisDataType[];
 
-    const product = historyList[historyList.length - 1];
-    if (!product) return res.status(404).send("Product not found");
+    const firstEntry = historyList[0];
+    const lastEntry = historyList[historyList.length - 1];
+    if (!firstEntry || !lastEntry) return res.status(404).send("Product not found");
 
     const history: DiffHistory = historyList.map(entry => {
       return {
@@ -33,19 +36,19 @@ async function productByLinkHandler(req: Request, res: Response, next: NextFunct
       };
     });
 
-    const flatCatalog = await getLastPriceListFlat(product.city);
-    const ifExists = flatCatalog.find(item => item.link === link);
-    const dateAdded = history[0]!.dateAdded; // non-null assertion as history has at least one entry here;
+    const flatCatalog = await getLastPriceListFlat(lastEntry.city);
+    const existsInCatalog = flatCatalog.some(item => item.link === link);
+    const dateAdded = firstEntry.dateAdded;
 
     const status: FavoriteStatus = {
       createdAt: dateAdded,
-      updatedAt: history[history.length - 1]!.dateAdded, // non-null assertion as history has at least one entry here
-      deleted: !ifExists,
-      city: product.city
+      updatedAt: lastEntry.dateAdded,
+      deleted: !existsInCatalog,
+      city: lastEntry.city
     };
 
     const payload: ProductPayload = {
-      item: { ...product, dateAdded },
+      item: { ...lastEntry, dateAdded },
       history,
       status
     };

@@ -2,5 +2,19 @@
   "permissions": {
     "allow": ["Bash(bun test *)", "Bash(bun run *)"],
     "deny": ["Read(.env)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run lint",
+            "statusMessage": "Running Linter..."
+          }
+        ]
+      }
+    ]
   }
 }
