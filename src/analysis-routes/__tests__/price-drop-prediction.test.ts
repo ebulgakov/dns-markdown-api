@@ -10,10 +10,13 @@ import type { NextFunction, Request, Response } from "express";
 // Mock dependencies
 const cacheGet = mock(async (): Promise<PriceDropPrediction[] | null> => null);
 const cacheAdd = mock(async () => {});
-const aggregate = mock(async (): Promise<unknown[]> => []);
+const exec = mock(async (): Promise<unknown[]> => []);
+const lean = mock(() => ({ exec }));
+const sort = mock(() => ({ lean }));
+const find = mock(() => ({ sort }));
 const getLastPriceListFlat = mock(async (): Promise<Goods[]> => []);
 
-const AnalysisData = { aggregate };
+const AnalysisData = { find };
 
 mock.module("@src/cache", () => ({
   cacheGet,
@@ -43,6 +46,10 @@ const makeGood = (overrides: Partial<Goods> = {}): Goods => ({
   ...overrides
 });
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const BASE_MS = new Date("2024-01-01T00:00:00.000Z").getTime();
+const atDay = (day: number) => new Date(BASE_MS + day * DAY_MS).toISOString();
+
 describe("priceDropPredictionHandler", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
@@ -57,7 +64,10 @@ describe("priceDropPredictionHandler", () => {
     cacheGet.mockReset();
     cacheAdd.mockReset();
     getLastPriceListFlat.mockReset();
-    aggregate.mockClear();
+    find.mockClear();
+    sort.mockClear();
+    lean.mockClear();
+    exec.mockClear();
     (next as unknown as Mock<NextFunction>).mockClear();
     json.mockClear();
     send.mockClear();
@@ -73,7 +83,7 @@ describe("priceDropPredictionHandler", () => {
   test("should return cached data if it exists", async () => {
     req.query = { city: "TestCity" };
     const mockPayload: PriceDropPrediction[] = [
-      { item: makeGood(), predictionDate: "2024-01-06T00:00:00.000Z" }
+      { item: makeGood(), lastUpdateDate: atDay(4), predictionDate: atDay(6) }
     ];
     cacheGet.mockResolvedValueOnce(mockPayload);
 
@@ -82,7 +92,7 @@ describe("priceDropPredictionHandler", () => {
     expect(cacheGet).toHaveBeenCalledWith("daily:analysis:price-drop-prediction:TestCity");
     expect(json).toHaveBeenCalledWith(mockPayload);
     expect(getLastPriceListFlat).not.toHaveBeenCalled();
-    expect(aggregate).not.toHaveBeenCalled();
+    expect(find).not.toHaveBeenCalled();
   });
 
   test("should return an empty array without querying AnalysisData if the catalog is empty", async () => {
@@ -91,85 +101,106 @@ describe("priceDropPredictionHandler", () => {
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
-    expect(aggregate).not.toHaveBeenCalled();
-    expect(cacheAdd).toHaveBeenCalledWith(
-      "daily:analysis:price-drop-prediction:TestCity",
-      [],
-      { ex: 60 * 60 * 24 }
-    );
+    expect(find).not.toHaveBeenCalled();
+    expect(cacheAdd).toHaveBeenCalledWith("daily:analysis:price-drop-prediction:TestCity", [], {
+      ex: 60 * 60 * 24
+    });
     expect(json).toHaveBeenCalledWith([]);
   });
 
-  test("should exclude products with fewer than 2 history entries", async () => {
+  test("should query the full history sorted ascending by link and date", async () => {
     req.query = { city: "TestCity" };
-    const withHistory = makeGood({ link: "https://example.com/with-history" });
-    const withoutHistory = makeGood({ link: "https://example.com/no-history" });
-    getLastPriceListFlat.mockResolvedValueOnce([withHistory, withoutHistory]);
-    aggregate.mockResolvedValueOnce([
-      {
-        _id: "https://example.com/with-history",
-        firstDate: "2024-01-01T00:00:00.000Z",
-        lastDate: "2024-01-05T00:00:00.000Z",
-        count: 2
-      },
-      {
-        _id: "https://example.com/no-history",
-        firstDate: "2024-01-01T00:00:00.000Z",
-        lastDate: "2024-01-01T00:00:00.000Z",
-        count: 1
-      }
+    getLastPriceListFlat.mockResolvedValueOnce([makeGood({ link: "https://example.com/product" })]);
+    exec.mockResolvedValueOnce([]);
+
+    await priceDropPredictionHandler(req as Request, res as Response, next);
+
+    expect(find).toHaveBeenCalledWith(
+      { city: "TestCity", link: { $in: ["https://example.com/product"] } },
+      { link: 1, price: 1, dateAdded: 1 }
+    );
+    expect(sort).toHaveBeenCalledWith({ link: 1, dateAdded: 1 });
+  });
+
+  test("should ignore price increases and flat records, counting only actual drops", async () => {
+    req.query = { city: "TestCity" };
+    const link = "https://example.com/product";
+    const item = makeGood({ link });
+    getLastPriceListFlat.mockResolvedValueOnce([item]);
+    exec.mockResolvedValueOnce([
+      { link, price: "4200", dateAdded: atDay(0) }, // initial
+      { link, price: "4200", dateAdded: atDay(2) }, // flat, not a drop
+      { link, price: "3600", dateAdded: atDay(3) }, // drop #1
+      { link, price: "3700", dateAdded: atDay(5) }, // increase, not a drop
+      { link, price: "3100", dateAdded: atDay(7) } // drop #2 (relative to 3700)
     ]);
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
+    // drop #1 at day 3, drop #2 at day 7 -> avg interval 4 days -> prediction day 11
     expect(json).toHaveBeenCalledWith([
-      { item: withHistory, predictionDate: "2024-01-09T00:00:00.000Z" }
+      { item, lastUpdateDate: atDay(7), predictionDate: atDay(11) }
     ]);
   });
 
-  test("should compute the average interval and predict the next change date, sorted ascending", async () => {
+  test("should exclude products with fewer than 2 recorded price drops", async () => {
+    req.query = { city: "TestCity" };
+    const withTwoDrops = makeGood({ link: "https://example.com/with-two-drops" });
+    const withOneDrop = makeGood({ link: "https://example.com/with-one-drop" });
+    const withNoHistory = makeGood({ link: "https://example.com/no-history" });
+    getLastPriceListFlat.mockResolvedValueOnce([withTwoDrops, withOneDrop, withNoHistory]);
+    exec.mockResolvedValueOnce([
+      { link: withTwoDrops.link, price: "1000", dateAdded: atDay(0) },
+      { link: withTwoDrops.link, price: "900", dateAdded: atDay(1) },
+      { link: withTwoDrops.link, price: "800", dateAdded: atDay(3) },
+      { link: withOneDrop.link, price: "1000", dateAdded: atDay(0) },
+      { link: withOneDrop.link, price: "1000", dateAdded: atDay(5) },
+      { link: withOneDrop.link, price: "900", dateAdded: atDay(10) }
+    ]);
+
+    await priceDropPredictionHandler(req as Request, res as Response, next);
+
+    // withTwoDrops: drops at day 1 and day 3 -> avg interval 2 days -> prediction day 5
+    expect(json).toHaveBeenCalledWith([
+      { item: withTwoDrops, lastUpdateDate: atDay(3), predictionDate: atDay(5) }
+    ]);
+  });
+
+  test("should compute the average interval between drops per product, sorted ascending by predicted date", async () => {
     req.query = { city: "TestCity" };
     const soon = makeGood({ link: "https://example.com/soon" });
     const far = makeGood({ link: "https://example.com/far" });
     getLastPriceListFlat.mockResolvedValueOnce([far, soon]);
-    aggregate.mockResolvedValueOnce([
-      {
-        // events at day 0, day 2, day 4 -> avg interval 2 days -> prediction day 6
-        _id: "https://example.com/soon",
-        firstDate: "2024-01-01T00:00:00.000Z",
-        lastDate: "2024-01-05T00:00:00.000Z",
-        count: 3
-      },
-      {
-        // events at day 0, day 20 -> avg interval 20 days -> prediction day 40
-        _id: "https://example.com/far",
-        firstDate: "2024-01-01T00:00:00.000Z",
-        lastDate: "2024-01-21T00:00:00.000Z",
-        count: 2
-      }
+    exec.mockResolvedValueOnce([
+      // far: drops at day 1 and day 30 -> avg interval 29 days -> prediction day 59
+      { link: far.link, price: "5000", dateAdded: atDay(0) },
+      { link: far.link, price: "4500", dateAdded: atDay(1) },
+      { link: far.link, price: "4000", dateAdded: atDay(30) },
+      // soon: drops at day 3 and day 7 -> avg interval 4 days -> prediction day 11
+      { link: soon.link, price: "4200", dateAdded: atDay(0) },
+      { link: soon.link, price: "3600", dateAdded: atDay(3) },
+      { link: soon.link, price: "3100", dateAdded: atDay(7) }
     ]);
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
+    const expected = [
+      { item: soon, lastUpdateDate: atDay(7), predictionDate: atDay(11) },
+      { item: far, lastUpdateDate: atDay(30), predictionDate: atDay(59) }
+    ];
     expect(cacheAdd).toHaveBeenCalledWith(
       "daily:analysis:price-drop-prediction:TestCity",
-      [
-        { item: soon, predictionDate: "2024-01-07T00:00:00.000Z" },
-        { item: far, predictionDate: "2024-02-10T00:00:00.000Z" }
-      ],
+      expected,
       { ex: 60 * 60 * 24 }
     );
-    expect(json).toHaveBeenCalledWith([
-      { item: soon, predictionDate: "2024-01-07T00:00:00.000Z" },
-      { item: far, predictionDate: "2024-02-10T00:00:00.000Z" }
-    ]);
+    expect(json).toHaveBeenCalledWith(expected);
   });
 
   test("should call next with error if db query fails", async () => {
     req.query = { city: "TestCity" };
     getLastPriceListFlat.mockResolvedValueOnce([makeGood()]);
     const error = new Error("DB error");
-    aggregate.mockRejectedValueOnce(error);
+    exec.mockRejectedValueOnce(error);
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 

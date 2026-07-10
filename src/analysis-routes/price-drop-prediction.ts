@@ -5,12 +5,33 @@ import { getLastPriceListFlat } from "@src/pricelist-routes/helpers/get-last-pri
 import type { PriceDropPrediction } from "@src/types/analysis-data";
 import type { NextFunction, Request, Response } from "express";
 
-type LinkStats = {
-  _id: string;
-  firstDate: Date | string;
-  lastDate: Date | string;
-  count: number;
+type HistoryEntry = {
+  link: string;
+  price: string;
+  dateAdded: Date | string;
 };
+
+function getDropIntervalMs(
+  history: HistoryEntry[]
+): { lastDropMs: number; avgIntervalMs: number } | null {
+  const dropDatesMs: number[] = [];
+
+  for (let i = 1; i < history.length; i++) {
+    const prevPrice = Number(history[i - 1]!.price);
+    const currPrice = Number(history[i]!.price);
+    if (currPrice < prevPrice) {
+      dropDatesMs.push(new Date(history[i]!.dateAdded).getTime());
+    }
+  }
+
+  if (dropDatesMs.length < 2) return null;
+
+  const firstDropMs = dropDatesMs[0]!;
+  const lastDropMs = dropDatesMs[dropDatesMs.length - 1]!;
+  const avgIntervalMs = (lastDropMs - firstDropMs) / (dropDatesMs.length - 1);
+
+  return { lastDropMs, avgIntervalMs };
+}
 
 async function priceDropPredictionHandler(req: Request, res: Response, next: NextFunction) {
   try {
@@ -30,37 +51,37 @@ async function priceDropPredictionHandler(req: Request, res: Response, next: Nex
 
     const links = [...new Set(flatCatalog.map(item => item.link))];
 
-    const linkStats = (await AnalysisData.aggregate([
-      { $match: { city, link: { $in: links } } },
-      {
-        $group: {
-          _id: "$link",
-          firstDate: { $min: "$dateAdded" },
-          lastDate: { $max: "$dateAdded" },
-          count: { $sum: 1 }
-        }
-      }
-    ])) as LinkStats[];
+    // Fetch every recorded price for each product (not just first/last) so we can
+    // walk the full price timeline and pick out actual drops (price decreases),
+    // rather than assuming every AnalysisData row is a price change.
+    const history = (await AnalysisData.find(
+      { city, link: { $in: links } },
+      { link: 1, price: 1, dateAdded: 1 }
+    )
+      .sort({ link: 1, dateAdded: 1 })
+      .lean()
+      .exec()) as HistoryEntry[];
 
-    const statsByLink = new Map(
-      linkStats.map(stats => [
-        stats._id,
-        {
-          firstMs: new Date(stats.firstDate).getTime(),
-          lastMs: new Date(stats.lastDate).getTime(),
-          count: stats.count
-        }
-      ])
-    );
+    const historyByLink = new Map<string, HistoryEntry[]>();
+    for (const entry of history) {
+      const entries = historyByLink.get(entry.link) ?? [];
+      entries.push(entry);
+      historyByLink.set(entry.link, entries);
+    }
 
     const predictions: PriceDropPrediction[] = flatCatalog
-      .filter(item => (statsByLink.get(item.link)?.count ?? 0) >= 2)
       .map(item => {
-        const stats = statsByLink.get(item.link)!;
-        const avgIntervalMs = (stats.lastMs - stats.firstMs) / (stats.count - 1);
-        const predictionDate = new Date(stats.lastMs + avgIntervalMs).toISOString();
-        return { item, predictionDate };
+        const linkHistory = historyByLink.get(item.link);
+        const dropInterval = linkHistory ? getDropIntervalMs(linkHistory) : null;
+        if (!dropInterval) return null;
+
+        const lastUpdateDate = new Date(dropInterval.lastDropMs).toISOString();
+        const predictionDate = new Date(
+          dropInterval.lastDropMs + dropInterval.avgIntervalMs
+        ).toISOString();
+        return { item, lastUpdateDate, predictionDate };
       })
+      .filter((prediction): prediction is PriceDropPrediction => prediction !== null)
       .sort((a, b) => a.predictionDate.localeCompare(b.predictionDate));
 
     await cacheAdd<PriceDropPrediction[]>(key, predictions, { ex: 60 * 60 * 24 }); // 24 hours

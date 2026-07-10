@@ -8,5 +8,6 @@ export type AnalysisData = Goods & {
 
 export type PriceDropPrediction = {
   item: Goods;
+  lastUpdateDate: string;
   predictionDate: string;
 };
