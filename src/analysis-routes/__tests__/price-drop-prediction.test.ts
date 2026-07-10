@@ -192,6 +192,28 @@ describe("priceDropPredictionHandler", () => {
     ]);
   });
 
+  test("should average uneven gaps between drops, not extrapolate from the last gap", async () => {
+    req.query = { city: "TestCity" };
+    const link = "https://example.com/product";
+    const item = makeGood({ link });
+    getLastPriceListFlat.mockResolvedValueOnce([item]);
+    exec.mockResolvedValueOnce([
+      { link, price: "5000", dateAdded: daysAgo(120) }, // catalog add (baseline)
+      { link, price: "4500", dateAdded: daysAgo(100) }, // drop #1
+      { link, price: "4000", dateAdded: daysAgo(40) }, // drop #2 (gap 60)
+      { link, price: "3500", dateAdded: daysAgo(10) }, // drop #3 (gap 30)
+      { link, price: "3000", dateAdded: daysAgo(4) } // drop #4 (gap 6)
+    ]);
+
+    await priceDropPredictionHandler(req as Request, res as Response, next);
+
+    // gaps 60, 30, 6 -> average 32 days. Last gap alone (6) would give day +2;
+    // the average pushes the prediction to last drop (day -4) + 32 = day +28.
+    expect(json).toHaveBeenCalledWith([
+      { item, lastUpdateDate: daysAgo(4), predictionDate: daysFromNow(28) }
+    ]);
+  });
+
   test("should compute the average interval between drops per product, sorted ascending by predicted date", async () => {
     req.query = { city: "TestCity" };
     const soon = makeGood({ link: "https://example.com/soon" });

@@ -24,11 +24,20 @@ function getDropIntervalMs(
     }
   }
 
+  // Need at least two drops to form one complete interval between drops.
   if (dropDatesMs.length < 2) return null;
 
-  const firstDropMs = dropDatesMs[0]!;
+  // Average the gaps between each pair of consecutive drops. The gaps can differ
+  // a lot (e.g. 61, 30, 6 days), so we sum them and divide by their count rather
+  // than only extrapolating from the most recent gap.
+  const intervalsMs: number[] = [];
+  for (let i = 1; i < dropDatesMs.length; i++) {
+    intervalsMs.push(dropDatesMs[i]! - dropDatesMs[i - 1]!);
+  }
+  const avgIntervalMs =
+    intervalsMs.reduce((sum, interval) => sum + interval, 0) / intervalsMs.length;
+
   const lastDropMs = dropDatesMs[dropDatesMs.length - 1]!;
-  const avgIntervalMs = (lastDropMs - firstDropMs) / (dropDatesMs.length - 1);
 
   return { lastDropMs, avgIntervalMs };
 }
