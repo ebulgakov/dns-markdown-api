@@ -69,17 +69,23 @@ async function priceDropPredictionHandler(req: Request, res: Response, next: Nex
       historyByLink.set(entry.link, entries);
     }
 
+    const now = Date.now();
     const predictions: PriceDropPrediction[] = flatCatalog
       .map(item => {
         const linkHistory = historyByLink.get(item.link);
         const dropInterval = linkHistory ? getDropIntervalMs(linkHistory) : null;
         if (!dropInterval) return null;
 
-        const lastUpdateDate = new Date(dropInterval.lastDropMs).toISOString();
-        const predictionDate = new Date(
-          dropInterval.lastDropMs + dropInterval.avgIntervalMs
-        ).toISOString();
-        return { item, lastUpdateDate, predictionDate };
+        const predictionMs = dropInterval.lastDropMs + dropInterval.avgIntervalMs;
+        // A prediction in the past means the product is already "overdue" and
+        // gives no useful forecast, so it is dropped from the response.
+        if (predictionMs < now) return null;
+
+        return {
+          item,
+          lastUpdateDate: new Date(dropInterval.lastDropMs).toISOString(),
+          predictionDate: new Date(predictionMs).toISOString()
+        };
       })
       .filter((prediction): prediction is PriceDropPrediction => prediction !== null)
       .sort((a, b) => a.predictionDate.localeCompare(b.predictionDate));

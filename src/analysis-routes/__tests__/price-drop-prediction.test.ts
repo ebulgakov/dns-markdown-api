@@ -46,9 +46,12 @@ const makeGood = (overrides: Partial<Goods> = {}): Goods => ({
   ...overrides
 });
 
+// Anchor all fixture dates on "now" so predictions land in the future and are
+// not filtered out by the past-prediction rule (which compares against Date.now()).
 const DAY_MS = 24 * 60 * 60 * 1000;
-const BASE_MS = new Date("2024-01-01T00:00:00.000Z").getTime();
-const atDay = (day: number) => new Date(BASE_MS + day * DAY_MS).toISOString();
+const NOW_MS = Date.now();
+const daysAgo = (days: number) => new Date(NOW_MS - days * DAY_MS).toISOString();
+const daysFromNow = (days: number) => new Date(NOW_MS + days * DAY_MS).toISOString();
 
 describe("priceDropPredictionHandler", () => {
   let req: Partial<Request>;
@@ -83,7 +86,7 @@ describe("priceDropPredictionHandler", () => {
   test("should return cached data if it exists", async () => {
     req.query = { city: "TestCity" };
     const mockPayload: PriceDropPrediction[] = [
-      { item: makeGood(), lastUpdateDate: atDay(4), predictionDate: atDay(6) }
+      { item: makeGood(), lastUpdateDate: daysAgo(2), predictionDate: daysFromNow(6) }
     ];
     cacheGet.mockResolvedValueOnce(mockPayload);
 
@@ -128,18 +131,18 @@ describe("priceDropPredictionHandler", () => {
     const item = makeGood({ link });
     getLastPriceListFlat.mockResolvedValueOnce([item]);
     exec.mockResolvedValueOnce([
-      { link, price: "4200", dateAdded: atDay(0) }, // initial
-      { link, price: "4200", dateAdded: atDay(2) }, // flat, not a drop
-      { link, price: "3600", dateAdded: atDay(3) }, // drop #1
-      { link, price: "3700", dateAdded: atDay(5) }, // increase, not a drop
-      { link, price: "3100", dateAdded: atDay(7) } // drop #2 (relative to 3700)
+      { link, price: "4200", dateAdded: daysAgo(40) }, // initial (catalog add)
+      { link, price: "4200", dateAdded: daysAgo(38) }, // flat, not a drop
+      { link, price: "3600", dateAdded: daysAgo(30) }, // drop #1
+      { link, price: "3700", dateAdded: daysAgo(20) }, // increase, not a drop
+      { link, price: "3100", dateAdded: daysAgo(10) } // drop #2 (relative to 3700)
     ]);
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
-    // drop #1 at day 3, drop #2 at day 7 -> avg interval 4 days -> prediction day 11
+    // drops at day -30 and day -10 -> interval 20 days -> prediction day +10
     expect(json).toHaveBeenCalledWith([
-      { item, lastUpdateDate: atDay(7), predictionDate: atDay(11) }
+      { item, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) }
     ]);
   });
 
@@ -150,19 +153,42 @@ describe("priceDropPredictionHandler", () => {
     const withNoHistory = makeGood({ link: "https://example.com/no-history" });
     getLastPriceListFlat.mockResolvedValueOnce([withTwoDrops, withOneDrop, withNoHistory]);
     exec.mockResolvedValueOnce([
-      { link: withTwoDrops.link, price: "1000", dateAdded: atDay(0) },
-      { link: withTwoDrops.link, price: "900", dateAdded: atDay(1) },
-      { link: withTwoDrops.link, price: "800", dateAdded: atDay(3) },
-      { link: withOneDrop.link, price: "1000", dateAdded: atDay(0) },
-      { link: withOneDrop.link, price: "1000", dateAdded: atDay(5) },
-      { link: withOneDrop.link, price: "900", dateAdded: atDay(10) }
+      { link: withTwoDrops.link, price: "1000", dateAdded: daysAgo(40) },
+      { link: withTwoDrops.link, price: "900", dateAdded: daysAgo(30) },
+      { link: withTwoDrops.link, price: "800", dateAdded: daysAgo(10) },
+      { link: withOneDrop.link, price: "1000", dateAdded: daysAgo(40) },
+      { link: withOneDrop.link, price: "1000", dateAdded: daysAgo(30) },
+      { link: withOneDrop.link, price: "900", dateAdded: daysAgo(10) }
     ]);
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
-    // withTwoDrops: drops at day 1 and day 3 -> avg interval 2 days -> prediction day 5
+    // withTwoDrops: drops at day -30 and day -10 -> interval 20 days -> prediction day +10
     expect(json).toHaveBeenCalledWith([
-      { item: withTwoDrops, lastUpdateDate: atDay(3), predictionDate: atDay(5) }
+      { item: withTwoDrops, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) }
+    ]);
+  });
+
+  test("should keep products with a future prediction but drop those overdue, in one response", async () => {
+    req.query = { city: "TestCity" };
+    const future = makeGood({ link: "https://example.com/future" });
+    const overdue = makeGood({ link: "https://example.com/overdue" });
+    getLastPriceListFlat.mockResolvedValueOnce([future, overdue]);
+    exec.mockResolvedValueOnce([
+      // future: drops at day -30 and day -10 -> interval 20 -> prediction day +10 (kept)
+      { link: future.link, price: "5000", dateAdded: daysAgo(40) },
+      { link: future.link, price: "4500", dateAdded: daysAgo(30) },
+      { link: future.link, price: "4000", dateAdded: daysAgo(10) },
+      // overdue: drops at day -100 and day -60 -> interval 40 -> prediction day -20 (dropped)
+      { link: overdue.link, price: "3000", dateAdded: daysAgo(120) },
+      { link: overdue.link, price: "2500", dateAdded: daysAgo(100) },
+      { link: overdue.link, price: "2000", dateAdded: daysAgo(60) }
+    ]);
+
+    await priceDropPredictionHandler(req as Request, res as Response, next);
+
+    expect(json).toHaveBeenCalledWith([
+      { item: future, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) }
     ]);
   });
 
@@ -172,21 +198,21 @@ describe("priceDropPredictionHandler", () => {
     const far = makeGood({ link: "https://example.com/far" });
     getLastPriceListFlat.mockResolvedValueOnce([far, soon]);
     exec.mockResolvedValueOnce([
-      // far: drops at day 1 and day 30 -> avg interval 29 days -> prediction day 59
-      { link: far.link, price: "5000", dateAdded: atDay(0) },
-      { link: far.link, price: "4500", dateAdded: atDay(1) },
-      { link: far.link, price: "4000", dateAdded: atDay(30) },
-      // soon: drops at day 3 and day 7 -> avg interval 4 days -> prediction day 11
-      { link: soon.link, price: "4200", dateAdded: atDay(0) },
-      { link: soon.link, price: "3600", dateAdded: atDay(3) },
-      { link: soon.link, price: "3100", dateAdded: atDay(7) }
+      // far: drops at day -60 and day -10 -> interval 50 days -> prediction day +40
+      { link: far.link, price: "5000", dateAdded: daysAgo(70) },
+      { link: far.link, price: "4500", dateAdded: daysAgo(60) },
+      { link: far.link, price: "4000", dateAdded: daysAgo(10) },
+      // soon: drops at day -30 and day -10 -> interval 20 days -> prediction day +10
+      { link: soon.link, price: "4200", dateAdded: daysAgo(40) },
+      { link: soon.link, price: "3600", dateAdded: daysAgo(30) },
+      { link: soon.link, price: "3100", dateAdded: daysAgo(10) }
     ]);
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
     const expected = [
-      { item: soon, lastUpdateDate: atDay(7), predictionDate: atDay(11) },
-      { item: far, lastUpdateDate: atDay(30), predictionDate: atDay(59) }
+      { item: soon, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) },
+      { item: far, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(40) }
     ];
     expect(cacheAdd).toHaveBeenCalledWith(
       "daily:analysis:price-drop-prediction:TestCity",
