@@ -11,35 +11,37 @@ type HistoryEntry = {
   dateAdded: Date | string;
 };
 
-function getDropIntervalMs(
+function getChangeIntervalMs(
   history: HistoryEntry[]
-): { lastDropMs: number; avgIntervalMs: number } | null {
-  const dropDatesMs: number[] = [];
+): { lastChangeMs: number; avgIntervalMs: number } | null {
+  const changeDatesMs: number[] = [];
 
   for (let i = 1; i < history.length; i++) {
     const prevPrice = Number(history[i - 1]!.price);
     const currPrice = Number(history[i]!.price);
-    if (currPrice < prevPrice) {
-      dropDatesMs.push(new Date(history[i]!.dateAdded).getTime());
+    // We care about when the price moved, not which direction, so any change
+    // (up or down) counts; only unchanged records are skipped.
+    if (currPrice !== prevPrice) {
+      changeDatesMs.push(new Date(history[i]!.dateAdded).getTime());
     }
   }
 
-  // Need at least two drops to form one complete interval between drops.
-  if (dropDatesMs.length < 2) return null;
+  // Need at least two changes to form one complete interval between changes.
+  if (changeDatesMs.length < 2) return null;
 
-  // Average the gaps between each pair of consecutive drops. The gaps can differ
-  // a lot (e.g. 61, 30, 6 days), so we sum them and divide by their count rather
-  // than only extrapolating from the most recent gap.
+  // Average the gaps between each pair of consecutive price changes. The gaps
+  // can differ a lot (e.g. 61, 30, 6 days), so we sum them and divide by their
+  // count rather than only extrapolating from the most recent gap.
   const intervalsMs: number[] = [];
-  for (let i = 1; i < dropDatesMs.length; i++) {
-    intervalsMs.push(dropDatesMs[i]! - dropDatesMs[i - 1]!);
+  for (let i = 1; i < changeDatesMs.length; i++) {
+    intervalsMs.push(changeDatesMs[i]! - changeDatesMs[i - 1]!);
   }
   const avgIntervalMs =
     intervalsMs.reduce((sum, interval) => sum + interval, 0) / intervalsMs.length;
 
-  const lastDropMs = dropDatesMs[dropDatesMs.length - 1]!;
+  const lastChangeMs = changeDatesMs[changeDatesMs.length - 1]!;
 
-  return { lastDropMs, avgIntervalMs };
+  return { lastChangeMs, avgIntervalMs };
 }
 
 async function priceDropPredictionHandler(req: Request, res: Response, next: NextFunction) {
@@ -61,8 +63,8 @@ async function priceDropPredictionHandler(req: Request, res: Response, next: Nex
     const links = [...new Set(flatCatalog.map(item => item.link))];
 
     // Fetch every recorded price for each product (not just first/last) so we can
-    // walk the full price timeline and pick out actual drops (price decreases),
-    // rather than assuming every AnalysisData row is a price change.
+    // walk the full price timeline and pick out the dates when the price actually
+    // changed — a row may record a profit-only change with the same price.
     const history = (await AnalysisData.find(
       { city, link: { $in: links } },
       { link: 1, price: 1, dateAdded: 1 }
@@ -82,17 +84,17 @@ async function priceDropPredictionHandler(req: Request, res: Response, next: Nex
     const predictions: PriceDropPrediction[] = flatCatalog
       .map(item => {
         const linkHistory = historyByLink.get(item.link);
-        const dropInterval = linkHistory ? getDropIntervalMs(linkHistory) : null;
-        if (!dropInterval) return null;
+        const changeInterval = linkHistory ? getChangeIntervalMs(linkHistory) : null;
+        if (!changeInterval) return null;
 
-        const predictionMs = dropInterval.lastDropMs + dropInterval.avgIntervalMs;
+        const predictionMs = changeInterval.lastChangeMs + changeInterval.avgIntervalMs;
         // A prediction in the past means the product is already "overdue" and
         // gives no useful forecast, so it is dropped from the response.
         if (predictionMs < now) return null;
 
         return {
           item,
-          lastUpdateDate: new Date(dropInterval.lastDropMs).toISOString(),
+          lastUpdateDate: new Date(changeInterval.lastChangeMs).toISOString(),
           predictionDate: new Date(predictionMs).toISOString()
         };
       })
