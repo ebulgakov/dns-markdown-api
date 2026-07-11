@@ -86,7 +86,7 @@ describe("priceDropPredictionHandler", () => {
   test("should return cached data if it exists", async () => {
     req.query = { city: "TestCity" };
     const mockPayload: PriceDropPrediction[] = [
-      { item: makeGood(), lastUpdateDate: daysAgo(2), predictionDate: daysFromNow(6) }
+      { item: makeGood(), lastUpdateDate: daysAgo(2), predictionDate: daysFromNow(6), expired: false }
     ];
     cacheGet.mockResolvedValueOnce(mockPayload);
 
@@ -144,7 +144,7 @@ describe("priceDropPredictionHandler", () => {
     // If the increase at day -30 were ignored, gaps would be 40 -> prediction day +30,
     // so asserting day +10 proves the increase is counted.
     expect(json).toHaveBeenCalledWith([
-      { item, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) }
+      { item, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10), expired: false }
     ]);
   });
 
@@ -167,21 +167,21 @@ describe("priceDropPredictionHandler", () => {
 
     // withTwoChanges: changes at day -30 and day -10 -> interval 20 days -> prediction day +10
     expect(json).toHaveBeenCalledWith([
-      { item: withTwoChanges, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) }
+      { item: withTwoChanges, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10), expired: false }
     ]);
   });
 
-  test("should keep products with a future prediction but drop those overdue, in one response", async () => {
+  test("should keep overdue products flagged as expired alongside future ones", async () => {
     req.query = { city: "TestCity" };
     const future = makeGood({ link: "https://example.com/future" });
     const overdue = makeGood({ link: "https://example.com/overdue" });
     getLastPriceListFlat.mockResolvedValueOnce([future, overdue]);
     exec.mockResolvedValueOnce([
-      // future: changes at day -30 and day -10 -> interval 20 -> prediction day +10 (kept)
+      // future: changes at day -30 and day -10 -> interval 20 -> prediction day +10 (expired: false)
       { link: future.link, price: "5000", dateAdded: daysAgo(40) },
       { link: future.link, price: "4500", dateAdded: daysAgo(30) },
       { link: future.link, price: "4000", dateAdded: daysAgo(10) },
-      // overdue: changes at day -100 and day -60 -> interval 40 -> prediction day -20 (dropped)
+      // overdue: changes at day -100 and day -60 -> interval 40 -> prediction day -20 (expired: true)
       { link: overdue.link, price: "3000", dateAdded: daysAgo(120) },
       { link: overdue.link, price: "2500", dateAdded: daysAgo(100) },
       { link: overdue.link, price: "2000", dateAdded: daysAgo(60) }
@@ -189,8 +189,11 @@ describe("priceDropPredictionHandler", () => {
 
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
+    // Both are returned, sorted ascending by predictionDate, so the overdue one
+    // (day -20) comes before the future one (day +10) and carries expired: true.
     expect(json).toHaveBeenCalledWith([
-      { item: future, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) }
+      { item: overdue, lastUpdateDate: daysAgo(60), predictionDate: daysAgo(20), expired: true },
+      { item: future, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10), expired: false }
     ]);
   });
 
@@ -212,7 +215,7 @@ describe("priceDropPredictionHandler", () => {
     // gaps 60, 30, 6 -> average 32 days. Last gap alone (6) would give day +2;
     // the average pushes the prediction to last change (day -4) + 32 = day +28.
     expect(json).toHaveBeenCalledWith([
-      { item, lastUpdateDate: daysAgo(4), predictionDate: daysFromNow(28) }
+      { item, lastUpdateDate: daysAgo(4), predictionDate: daysFromNow(28), expired: false }
     ]);
   });
 
@@ -235,8 +238,8 @@ describe("priceDropPredictionHandler", () => {
     await priceDropPredictionHandler(req as Request, res as Response, next);
 
     const expected = [
-      { item: soon, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10) },
-      { item: far, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(40) }
+      { item: soon, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(10), expired: false },
+      { item: far, lastUpdateDate: daysAgo(10), predictionDate: daysFromNow(40), expired: false }
     ];
     expect(cacheAdd).toHaveBeenCalledWith(
       "daily:analysis:price-drop-prediction:TestCity",

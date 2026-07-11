@@ -88,13 +88,13 @@ async function priceDropPredictionHandler(req: Request, res: Response, next: Nex
         if (!changeInterval) return null;
 
         const predictionMs = changeInterval.lastChangeMs + changeInterval.avgIntervalMs;
-        // A prediction in the past means the product is already "overdue" and
-        // gives no useful forecast, so it is dropped from the response.
-        if (predictionMs < now) return null;
 
         return {
           item,
           lastUpdateDate: new Date(changeInterval.lastChangeMs).toISOString(),
+          // A prediction in the past means the product is already "overdue" for a
+          // change; we keep it in the response but flag it so the frontend can tell.
+          expired: predictionMs < now,
           predictionDate: new Date(predictionMs).toISOString()
         };
       })

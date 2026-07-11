@@ -10,4 +10,5 @@ export type PriceDropPrediction = {
   item: Goods;
   lastUpdateDate: string;
   predictionDate: string;
+  expired: boolean;
 };
