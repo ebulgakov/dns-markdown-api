@@ -11,37 +11,53 @@ type HistoryEntry = {
   dateAdded: Date | string;
 };
 
-function getChangeIntervalMs(
-  history: HistoryEntry[]
-): { lastChangeMs: number; avgIntervalMs: number } | null {
-  const changeDatesMs: number[] = [];
+// A gap this much smaller than the city-wide typical interval is treated as noise
+// (e.g. several changes within days of each other) rather than a real cadence signal.
+const ANOMALY_FRACTION = 0.2;
 
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+}
+
+// We care about when the price moved, not which direction, so any change (up or
+// down) counts; only unchanged records (e.g. a profit-only update) are skipped.
+function getChangeDatesMs(history: HistoryEntry[]): number[] {
+  const changeDatesMs: number[] = [];
   for (let i = 1; i < history.length; i++) {
     const prevPrice = Number(history[i - 1]!.price);
     const currPrice = Number(history[i]!.price);
-    // We care about when the price moved, not which direction, so any change
-    // (up or down) counts; only unchanged records are skipped.
     if (currPrice !== prevPrice) {
       changeDatesMs.push(new Date(history[i]!.dateAdded).getTime());
     }
   }
+  return changeDatesMs;
+}
 
-  // Need at least two changes to form one complete interval between changes.
-  if (changeDatesMs.length < 2) return null;
+// Walks a product's own change dates and drops gaps that are anomalously short
+// relative to the city's typical interval, so a burst of rapid changes doesn't
+// drag the product's own median down. The reference point always advances to
+// the current date regardless, so a whole burst is skipped as noise and the
+// next real gap is measured from the burst's last point, not its first.
+function filterAnomalousGaps(
+  changeDatesMs: number[],
+  globalMedianMs: number | null
+): { usableGaps: number[]; lastChangeMs: number } | null {
+  if (changeDatesMs.length === 0) return null;
 
-  // Average the gaps between each pair of consecutive price changes. The gaps
-  // can differ a lot (e.g. 61, 30, 6 days), so we sum them and divide by their
-  // count rather than only extrapolating from the most recent gap.
-  const intervalsMs: number[] = [];
+  const usableGaps: number[] = [];
+  let lastKeptMs = changeDatesMs[0]!;
+
   for (let i = 1; i < changeDatesMs.length; i++) {
-    intervalsMs.push(changeDatesMs[i]! - changeDatesMs[i - 1]!);
+    const currentMs = changeDatesMs[i]!;
+    const gap = currentMs - lastKeptMs;
+    const isAnomalous = globalMedianMs !== null && gap < ANOMALY_FRACTION * globalMedianMs;
+    if (!isAnomalous) usableGaps.push(gap);
+    lastKeptMs = currentMs;
   }
-  const avgIntervalMs =
-    intervalsMs.reduce((sum, interval) => sum + interval, 0) / intervalsMs.length;
 
-  const lastChangeMs = changeDatesMs[changeDatesMs.length - 1]!;
-
-  return { lastChangeMs, avgIntervalMs };
+  return { usableGaps, lastChangeMs: lastKeptMs };
 }
 
 async function priceDropPredictionHandler(req: Request, res: Response, next: NextFunction) {
@@ -80,18 +96,54 @@ async function priceDropPredictionHandler(req: Request, res: Response, next: Nex
       historyByLink.set(entry.link, entries);
     }
 
+    const changeDatesByLink = new Map<string, number[]>();
+    const firstSeenMsByLink = new Map<string, number>();
+    for (const [link, entries] of historyByLink) {
+      firstSeenMsByLink.set(link, new Date(entries[0]!.dateAdded).getTime());
+      changeDatesByLink.set(link, getChangeDatesMs(entries));
+    }
+
+    // Reference interval for the whole city: the median of every raw gap between
+    // consecutive price changes, pooled across all products. Used both as the
+    // anomaly threshold above and as the fallback estimate for products that
+    // don't have enough history of their own (see below).
+    const allGapsMs: number[] = [];
+    for (const changeDatesMs of changeDatesByLink.values()) {
+      for (let i = 1; i < changeDatesMs.length; i++) {
+        allGapsMs.push(changeDatesMs[i]! - changeDatesMs[i - 1]!);
+      }
+    }
+    const globalMedianMs = allGapsMs.length > 0 ? median(allGapsMs) : null;
+
     const now = Date.now();
     const predictions: PriceDropPrediction[] = flatCatalog
       .map(item => {
-        const linkHistory = historyByLink.get(item.link);
-        const changeInterval = linkHistory ? getChangeIntervalMs(linkHistory) : null;
-        if (!changeInterval) return null;
+        const changeDatesMs = changeDatesByLink.get(item.link) ?? [];
+        const filtered = filterAnomalousGaps(changeDatesMs, globalMedianMs);
 
-        const predictionMs = changeInterval.lastChangeMs + changeInterval.avgIntervalMs;
+        let intervalMs: number | null = null;
+        let lastUpdateMs: number | undefined;
+
+        if (filtered && filtered.usableGaps.length > 0) {
+          // Enough of the product's own history survived anomaly filtering to
+          // estimate its own cadence.
+          intervalMs = median(filtered.usableGaps);
+          lastUpdateMs = filtered.lastChangeMs;
+        } else if (globalMedianMs !== null) {
+          // Too little history of its own (0 or 1 change, or every gap was
+          // anomalous) — fall back to the city-wide typical interval, anchored
+          // to the last thing we actually know about this product.
+          intervalMs = globalMedianMs;
+          lastUpdateMs = filtered?.lastChangeMs ?? firstSeenMsByLink.get(item.link);
+        }
+
+        if (intervalMs === null || lastUpdateMs === undefined) return null;
+
+        const predictionMs = lastUpdateMs + intervalMs;
 
         return {
           item,
-          lastUpdateDate: new Date(changeInterval.lastChangeMs).toISOString(),
+          lastUpdateDate: new Date(lastUpdateMs).toISOString(),
           // A prediction in the past means the product is already "overdue" for a
           // change; we keep it in the response but flag it so the frontend can tell.
           expired: predictionMs < now,
