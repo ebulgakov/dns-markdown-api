@@ -5,3 +5,10 @@ export type AnalysisData = Goods & {
   category: string;
   dateAdded: string;
 };
+
+export type PriceDropPrediction = {
+  item: Goods;
+  lastUpdateDate: string;
+  predictionDate: string;
+  expired: boolean;
+};
