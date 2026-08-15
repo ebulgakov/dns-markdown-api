@@ -72,9 +72,9 @@ app.use("/api/analysis", analysisRoutes);
 app.use("/api/llm", llmRoutes);
 app.use("/api/user", userActionsRoutes);
 
-// API docs (Swagger UI), gated by the same shared-secret header as /api.
-// Requires the client to send X-Internal-API-Secret (e.g. via a browser extension or
-// an API tool), since plain browser navigation can't set custom headers.
+// API docs (Swagger UI). Available in development only: the shared-secret header
+// authPublicMiddleware expects can't be set via plain browser navigation, so gating
+// on it here would make the page unreachable from a browser entirely.
 app.use(
   "/docs",
   helmet({
@@ -86,7 +86,10 @@ app.use(
       }
     }
   }),
-  authPublicMiddleware,
+  (_req: Request, res: Response, next: NextFunction) => {
+    if (isDev()) return next();
+    return res.status(404).end();
+  },
   swaggerUi.serve,
   swaggerUi.setup(openApiSpec)
 );
