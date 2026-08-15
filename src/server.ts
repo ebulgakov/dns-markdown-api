@@ -77,6 +77,13 @@ app.use("/api/user", userActionsRoutes);
 // through the Authorize dialog. Access to this URL in production relies on
 // Vercel Deployment Protection rather than app-level auth, since a custom header
 // can't gate a plain browser page load.
+// Swagger UI's HTML links its assets with relative paths ("./swagger-ui.css"),
+// which resolve against the domain root instead of /docs/ unless the URL has a
+// trailing slash. Redirect the bare path so those requests land under /docs/.
+app.get("/docs", (req, res, next) => {
+  if (req.path === "/docs") return res.redirect(301, "/docs/");
+  return next();
+});
 app.use(
   "/docs",
   helmet({
