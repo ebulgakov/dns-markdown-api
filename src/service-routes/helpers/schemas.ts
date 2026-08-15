@@ -2,11 +2,9 @@ import { z } from "zod";
 
 import type { RouteDoc } from "@src/openapi/types";
 
-const dateStringSchema = z
-  .string()
-  .trim()
-  .min(1, "must be a non-empty string")
-  .refine(val => !isNaN(new Date(val).getTime()), "must be a valid date string");
+const dateStringSchema = z.union([z.iso.date(), z.iso.datetime()], {
+  error: "must be a valid ISO date (YYYY-MM-DD) or datetime string"
+});
 
 const reasonSchema = z.object({
   _id: z.string(),

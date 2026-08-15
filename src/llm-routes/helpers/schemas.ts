@@ -51,7 +51,14 @@ export const llmRouteDocs: RouteDoc[] = [
     summary: "Compare 2-5 products via an LLM-generated report",
     tags: ["LLM"],
     security: ["clerkAndApiSecret"],
-    query: z.object({ links: z.string() })
+    query: z.object({
+      links: z
+        .string()
+        .describe(
+          "URL-encoded JSON array of 2-5 product links, e.g. " +
+            "links=%5B%22https%3A%2F%2Fexample.com%2Fa%22%2C%22https%3A%2F%2Fexample.com%2Fb%22%5D"
+        )
+    })
   },
   {
     method: "get",
@@ -59,6 +66,8 @@ export const llmRouteDocs: RouteDoc[] = [
     summary: "Describe a product via an LLM-generated report",
     tags: ["LLM"],
     security: ["clerkAndApiSecret"],
-    query: z.object({ link: z.string() })
+    query: z.object({
+      link: z.string().describe("URL-encoded product link, e.g. link=https%3A%2F%2Fexample.com%2Fa")
+    })
   }
 ];

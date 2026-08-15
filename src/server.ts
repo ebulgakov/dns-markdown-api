@@ -38,7 +38,7 @@ app.use(
 // Swagger UI needs its own relaxed CSP (inline script/style), so it's excluded from the
 // default helmet() applied to every other route.
 app.use((req, res, next) => {
-  if (req.path.startsWith("/docs")) return next();
+  if (req.path === "/docs" || req.path.startsWith("/docs/")) return next();
   return helmet()(req, res, next);
 });
 

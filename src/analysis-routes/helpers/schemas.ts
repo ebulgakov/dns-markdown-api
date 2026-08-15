@@ -8,11 +8,9 @@ export const cityQuerySchema = z.object({
 
 export const cityDateQuerySchema = z.object({
   city: z.string().trim().min(1),
-  dateAdded: z
-    .string()
-    .trim()
-    .min(1, "must be a non-empty string")
-    .refine(val => !isNaN(new Date(val).getTime()), "must be a valid date string")
+  dateAdded: z.union([z.iso.date(), z.iso.datetime()], {
+    error: "must be a valid ISO date (YYYY-MM-DD) or datetime string"
+  })
 });
 
 export const analysisRouteDocs: RouteDoc[] = [

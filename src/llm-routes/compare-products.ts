@@ -9,14 +9,13 @@ import type { NextFunction, Request, Response } from "express";
 
 async function compareProductsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const linksParam = req.query.links;
     const validationResult = compareProductsQuerySchema.safeParse(req.query);
     if (!validationResult.success) {
       return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
     const { links } = validationResult.data;
 
-    const key = `llm:compare:${String(linksParam)}`;
+    const key = `llm:compare:${JSON.stringify(links)}`;
     const cached = await cacheGet<string>(key);
     if (cached)
       return res.json({
