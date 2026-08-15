@@ -13,6 +13,11 @@ import llmRoutes from "./llm-routes";
 import { authServiceMiddleware, authPublicMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { openApiSpec } from "./openapi";
+import {
+  swaggerUiBundleJs,
+  swaggerUiCss,
+  swaggerUiStandalonePresetJs
+} from "./openapi/docs-assets";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
@@ -95,6 +100,21 @@ app.use(
       }
     }
   }),
+  // swaggerUi.serve reads these files from swagger-ui-dist's on-disk location at
+  // runtime, which Vercel's serverless bundler doesn't trace/include (it only
+  // follows static import/require calls, not express.static's directory scans).
+  // Serving them from content embedded in the bundle at build time sidesteps
+  // that entirely.
+  (req: Request, res: Response, next: NextFunction) => {
+    if (req.path === "/swagger-ui.css") return res.type("text/css").send(swaggerUiCss);
+    if (req.path === "/swagger-ui-bundle.js") {
+      return res.type("application/javascript").send(swaggerUiBundleJs);
+    }
+    if (req.path === "/swagger-ui-standalone-preset.js") {
+      return res.type("application/javascript").send(swaggerUiStandalonePresetJs);
+    }
+    return next();
+  },
   swaggerUi.serve,
   swaggerUi.setup(openApiSpec)
 );
