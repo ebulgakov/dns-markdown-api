@@ -1,14 +1,18 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { Pricelist } from "@src/db/models/pricelist";
+import { listPriceListsQuerySchema } from "@src/pricelist-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { PriceListDate } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function listPriceListsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const cityRaw = req.query.city;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = listPriceListsQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     const key = `daily:archive:list:${String(city)}`;
     const cached = await cacheGet<PriceListDate[]>(key);

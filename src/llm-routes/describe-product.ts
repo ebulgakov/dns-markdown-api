@@ -1,17 +1,18 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { describeLLMGood } from "@src/llm";
 import { convertGoodsToString } from "@src/llm-routes/helpers/convert-to-string.ts";
+import { describeProductQuerySchema } from "@src/llm-routes/helpers/schemas";
 import { getVectorItemsByIds } from "@src/vector";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 async function describeProductHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const linkParam = req.query.link;
-    if (!linkParam || typeof linkParam !== "string") {
-      return res.status(400).json({ error: "Missing or invalid 'link' query parameter" });
+    const validationResult = describeProductQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
-
-    const link = decodeURIComponent(linkParam);
+    const { link } = validationResult.data;
 
     const key = `llm:describe:${String(link)}`;
     const cached = await cacheGet<string>(key);

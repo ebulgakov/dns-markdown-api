@@ -25,12 +25,13 @@ describe("totalUniqProductsCountHandler", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   const next = mock(() => {}) as unknown as NextFunction;
+  const json = mock(() => res as Response);
   const send = mock(() => res as Response);
   const status = mock(() => res as Response);
 
   beforeEach(() => {
     req = { query: {} };
-    res = { send, status };
+    res = { json, send, status };
     cacheGet.mockReset();
     cacheAdd.mockReset();
     aggregate.mockClear();
@@ -40,7 +41,7 @@ describe("totalUniqProductsCountHandler", () => {
   test("should return 400 if city is not provided", async () => {
     await totalUniqProductsCountHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.send).toHaveBeenCalledWith("city is required");
+    expect(res.json).toHaveBeenCalledWith({ errors: expect.any(String) });
   });
 
   test("should return cached data if it exists", async () => {

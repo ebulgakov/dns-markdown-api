@@ -1,14 +1,18 @@
+import { cityQuerySchema } from "@src/analysis-routes/helpers/schemas";
 import { cacheAdd, cacheGet } from "@src/cache";
 import { Reports } from "@src/db/models/reports";
+import { z } from "zod";
 
 import type { ReportsResponse } from "@src/types/reports";
 import type { NextFunction, Response, Request } from "express";
 
 async function reportsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const cityRaw = req.query.city;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = cityQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     const key = `daily:analysis:reports:${String(city)}`;
     const cached = await cacheGet<ReportsResponse>(key);

@@ -52,7 +52,7 @@ describe("allAnalysisDiffsHandler", () => {
   test("should return 400 if city is not provided", async () => {
     await allAnalysisDiffsHandler(req as Request, res as Response, next);
     expect(status).toHaveBeenCalledWith(400);
-    expect(send).toHaveBeenCalledWith("city is required");
+    expect(json).toHaveBeenCalledWith({ errors: expect.any(String) });
   });
 
   test("should return cached data if it exists", async () => {

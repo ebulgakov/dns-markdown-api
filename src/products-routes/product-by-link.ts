@@ -1,6 +1,8 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { AnalysisData } from "@src/db/models/analysis-data";
 import { getLastPriceListFlat } from "@src/pricelist-routes/helpers/get-last-price-list";
+import { linkQuerySchema } from "@src/products-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { AnalysisData as AnalysisDataType } from "@src/types/analysis-data";
 import type { DiffHistory } from "@src/types/analysis-diff";
@@ -10,9 +12,11 @@ import type { NextFunction, Request, Response } from "express";
 
 async function productByLinkHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const linkRaw = req.query.link as string;
-    const link = `${linkRaw ?? ""}`.trim();
-    if (!link) return res.status(400).send("link is required");
+    const validationResult = linkQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { link } = validationResult.data;
 
     const key = `daily:products:link:${link}`;
     const cached = await cacheGet<ProductPayload>(key);

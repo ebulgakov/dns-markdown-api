@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 
 import analysisRoutes from "./analysis-routes";
 import clerkRoutes from "./clerk-routes";
@@ -11,6 +12,7 @@ import { env, isDev, isTestEnv } from "./env";
 import llmRoutes from "./llm-routes";
 import { authServiceMiddleware, authPublicMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
+import { openApiSpec } from "./openapi";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
@@ -33,7 +35,12 @@ app.use(
   })
 );
 
-app.use(helmet());
+// Swagger UI needs its own relaxed CSP (inline script/style), so it's excluded from the
+// default helmet() applied to every other route.
+app.use((req, res, next) => {
+  if (req.path === "/docs" || req.path.startsWith("/docs/")) return next();
+  return helmet()(req, res, next);
+});
 
 // Set limit to 20MB
 app.use(express.json({ limit: "20mb" }));
@@ -64,6 +71,26 @@ app.use("/api/products", productsRoutes);
 app.use("/api/analysis", analysisRoutes);
 app.use("/api/llm", llmRoutes);
 app.use("/api/user", userActionsRoutes);
+
+// API docs (Swagger UI). The page itself is static (spec embedded inline); actual
+// /api calls made via "Try it out" still require X-Internal-API-Secret, entered
+// through the Authorize dialog. Access to this URL in production relies on
+// Vercel Deployment Protection rather than app-level auth, since a custom header
+// can't gate a plain browser page load.
+app.use(
+  "/docs",
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'"],
+        "style-src": ["'self'", "'unsafe-inline'"]
+      }
+    }
+  }),
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec)
+);
 
 // Clerk webhooks
 app.use("/clerk", clerkRoutes);

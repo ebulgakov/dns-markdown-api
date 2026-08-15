@@ -1,27 +1,19 @@
+import { cityDateQuerySchema } from "@src/analysis-routes/helpers/schemas";
 import { cacheAdd, cacheGet } from "@src/cache";
 import { AnalysisData } from "@src/db/models/analysis-data";
+import { z } from "zod";
 
 import type { AnalysisData as AnalysisDataType } from "@src/types/analysis-data";
 import type { NextFunction, Request, Response } from "express";
 
 async function allAnalysisGoodsByDateAddedHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city: cityRaw, dateAdded: dateAddedRaw } = req.query as {
-      city?: unknown;
-      dateAdded?: unknown;
-    };
-    const city = `${cityRaw ?? ""}`.trim();
-    const dateAdded = `${dateAddedRaw ?? ""}`.trim();
-
-    if (!city || !dateAdded) {
-      return res.status(400).send("city and dateAdded must be non-empty strings");
+    const validationResult = cityDateQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
-
-    // Parse dateAdded to Date to match schema type, or adjust filter accordingly
+    const { city, dateAdded } = validationResult.data;
     const parsedDate = new Date(dateAdded);
-    if (isNaN(parsedDate.getTime())) {
-      return res.status(400).send("dateAdded must be a valid date string");
-    }
 
     const key = `analysis:goods-by-date:${parsedDate.toISOString()}-${String(city)}`;
     const cached = await cacheGet<AnalysisDataType[]>(key);

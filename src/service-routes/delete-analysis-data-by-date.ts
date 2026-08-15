@@ -1,25 +1,17 @@
 import { AnalysisData } from "@src/db/models/analysis-data";
+import { cityDateSchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { NextFunction, Response, Request } from "express";
 
 async function deleteAnalysisDataByDateHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city: cityRaw, dateAdded: dateAddedRaw } = req.body as {
-      city?: unknown;
-      dateAdded?: unknown;
-    };
-    const city = `${cityRaw ?? ""}`.trim();
-    const dateAdded = `${dateAddedRaw ?? ""}`.trim();
-
-    if (!city || !dateAdded) {
-      return res.status(400).send("city and dateAdded must be non-empty strings");
+    const validationResult = cityDateSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
-
-    // Parse dateAdded to Date to match schema type, or adjust filter accordingly
+    const { city, dateAdded } = validationResult.data;
     const parsedDate = new Date(dateAdded);
-    if (isNaN(parsedDate.getTime())) {
-      return res.status(400).send("dateAdded must be a valid date string");
-    }
 
     await AnalysisData.deleteMany({ city, dateAdded: parsedDate }).exec();
 

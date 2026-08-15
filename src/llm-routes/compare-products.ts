@@ -1,42 +1,21 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { compareLLMGoods } from "@src/llm";
 import { convertGoodsToString } from "@src/llm-routes/helpers/convert-to-string";
+import { compareProductsQuerySchema } from "@src/llm-routes/helpers/schemas";
 import { getVectorItemsByIds } from "@src/vector";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 
 async function compareProductsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const linksParam = req.query.links;
-    if (!linksParam || typeof linksParam !== "string") {
-      return res.status(400).json({ error: "Missing or invalid 'links' query parameter" });
+    const validationResult = compareProductsQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
+    const { links } = validationResult.data;
 
-    let linksStr: string;
-    try {
-      linksStr = decodeURIComponent(linksParam);
-    } catch {
-      return res.status(400).json({ error: "Malformed 'links' query parameter" });
-    }
-
-    let links: unknown;
-    try {
-      links = JSON.parse(linksStr);
-    } catch {
-      return res.status(400).json({ error: "Input must be a JSON array of strings" });
-    }
-
-    if (!Array.isArray(links) || !links.every(link => typeof link === "string")) {
-      return res.status(400).json({ error: "Input must be a JSON array of strings" });
-    }
-
-    if (links.length < 2 || links.length > 5) {
-      return res.status(400).json({
-        error: "At least two product links are required for comparison (max five)"
-      });
-    }
-
-    const key = `llm:compare:${String(linksParam)}`;
+    const key = `llm:compare:${JSON.stringify(links)}`;
     const cached = await cacheGet<string>(key);
     if (cached)
       return res.json({

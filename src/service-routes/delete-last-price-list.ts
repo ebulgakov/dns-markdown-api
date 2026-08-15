@@ -1,13 +1,17 @@
 import { cacheDelete } from "@src/cache";
 import { Pricelist } from "@src/db/models/pricelist";
+import { citySchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 
 async function deleteLastPriceListHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city: cityRaw } = req.body as { city: unknown };
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = citySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     await Pricelist.findOneAndDelete({ city }, { sort: { updatedAt: -1 } }).exec();
 

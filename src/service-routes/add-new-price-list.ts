@@ -1,17 +1,17 @@
 import { cacheDelete } from "@src/cache";
 import { Pricelist } from "@src/db/models/pricelist";
+import { addNewPriceListBodySchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
-import type { Position } from "@src/types/pricelist";
 import type { NextFunction, Response, Request } from "express";
 
 async function addNewPriceListHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { city: cityRaw, positions } = req.body as { city: unknown; positions: Position[] };
-    const city = `${cityRaw ?? ""}`.trim();
-
-    if (!city || !Array.isArray(positions) || positions.length === 0) {
-      return res.status(400).send("city and positions are required");
+    const validationResult = addNewPriceListBodySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
+    const { city, positions } = validationResult.data;
 
     const priceList = new Pricelist({
       city,

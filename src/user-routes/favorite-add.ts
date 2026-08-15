@@ -1,35 +1,11 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { addFavoriteSchema } from "@src/user-routes/helpers/schemas";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
 import type { Favorite } from "@src/types/user";
 import type { NextFunction, Request, Response } from "express";
-
-const reasonSchema = z.object({
-  _id: z.string(),
-  label: z.string(),
-  text: z.string()
-});
-
-const goodsSchema = z.object({
-  _id: z.string(),
-  title: z.string(),
-  link: z.string(),
-  description: z.string(),
-  reasons: z.array(reasonSchema),
-  priceOld: z.string(),
-  price: z.string(),
-  profit: z.string(),
-  code: z.string(),
-  image: z.string(),
-  available: z.string(),
-  city: z.string()
-});
-
-const addFavoriteSchema = z.object({
-  product: goodsSchema
-});
 
 async function addFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {

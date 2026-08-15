@@ -77,7 +77,7 @@ describe("productByLinkHandler", () => {
   test("should return 400 if link is not provided", async () => {
     await productByLinkHandler(req as Request, res as Response, next);
     expect(status).toHaveBeenCalledWith(400);
-    expect(send).toHaveBeenCalledWith("link is required");
+    expect(json).toHaveBeenCalledWith({ errors: expect.any(String) });
   });
 
   test("should return cached data if it exists", async () => {
@@ -122,9 +122,7 @@ describe("productByLinkHandler", () => {
     const firstEntry = makeEntry({ dateAdded: "2024-01-01T00:00:00.000Z", price: "1000" });
     const lastEntry = makeEntry({ dateAdded: "2024-02-01T00:00:00.000Z", price: "800" });
     exec.mockResolvedValueOnce([firstEntry, lastEntry]);
-    getLastPriceListFlat.mockResolvedValueOnce([
-      { link: "https://example.com/product" } as Goods
-    ]);
+    getLastPriceListFlat.mockResolvedValueOnce([{ link: "https://example.com/product" } as Goods]);
 
     await productByLinkHandler(req as Request, res as Response, next);
 

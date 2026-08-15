@@ -1,13 +1,18 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { Pricelist } from "@src/db/models/pricelist";
+import { priceListByIdParamsSchema } from "@src/pricelist-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { PriceList as PriceListType } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function priceListByIdHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = req.params.id;
-    if (!id) return res.status(400).send("id is required");
+    const validationResult = priceListByIdParamsSchema.safeParse(req.params);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { id } = validationResult.data;
 
     const key = `archive:item:${String(id)}`;
     const cached = await cacheGet<PriceListType>(key);
