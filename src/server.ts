@@ -13,6 +13,11 @@ import llmRoutes from "./llm-routes";
 import { authServiceMiddleware, authPublicMiddleware } from "./middleware/auth-middleware";
 import { ensureDbConnectionMiddleware } from "./middleware/db-connection-middleware";
 import { openApiSpec } from "./openapi";
+import {
+  swaggerUiBundleJs,
+  swaggerUiCss,
+  swaggerUiStandalonePresetJs
+} from "./openapi/docs-assets";
 import priceListRoutes from "./pricelist-routes";
 import productsRoutes from "./products-routes";
 import serviceRoutes from "./service-routes";
@@ -77,13 +82,6 @@ app.use("/api/user", userActionsRoutes);
 // through the Authorize dialog. Access to this URL in production relies on
 // Vercel Deployment Protection rather than app-level auth, since a custom header
 // can't gate a plain browser page load.
-// Swagger UI's HTML links its assets with relative paths ("./swagger-ui.css"),
-// which resolve against the domain root instead of /docs/ unless the URL has a
-// trailing slash. Redirect the bare path so those requests land under /docs/.
-app.get("/docs", (req, res, next) => {
-  if (req.path === "/docs") return res.redirect(301, "/docs/");
-  return next();
-});
 app.use(
   "/docs",
   helmet({
@@ -95,6 +93,21 @@ app.use(
       }
     }
   }),
+  // swaggerUi.serve reads these files from swagger-ui-dist's on-disk location at
+  // runtime, which Vercel's serverless bundler doesn't trace/include (it only
+  // follows static import/require calls, not express.static's directory scans).
+  // Serving them from content embedded in the bundle at build time sidesteps
+  // that entirely.
+  (req: Request, res: Response, next: NextFunction) => {
+    if (req.path === "/swagger-ui.css") return res.type("text/css").send(swaggerUiCss);
+    if (req.path === "/swagger-ui-bundle.js") {
+      return res.type("application/javascript").send(swaggerUiBundleJs);
+    }
+    if (req.path === "/swagger-ui-standalone-preset.js") {
+      return res.type("application/javascript").send(swaggerUiStandalonePresetJs);
+    }
+    return next();
+  },
   swaggerUi.serve,
   swaggerUi.setup(openApiSpec)
 );
