@@ -1,12 +1,9 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { hiddenSectionAddSchema } from "@src/user-routes/helpers/schemas";
 import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
-
-const hiddenSectionAddSchema = z.object({
-  title: z.string().trim().min(1, "title is required and must be a non-empty string.")
-});
 
 async function hiddenAddHandler(req: Request, res: Response, next: NextFunction) {
   try {

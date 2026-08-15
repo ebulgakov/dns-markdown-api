@@ -1,12 +1,16 @@
 import { User } from "@src/db/models/user";
+import { citySchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { NextFunction, Response, Request } from "express";
 
 async function allNotificationUsersHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const cityRaw = req.query.city;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = citySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     const users = await User.find(
       { city, favorites: { $gt: [] }, "notifications.updates.enabled": true },

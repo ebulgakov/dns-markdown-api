@@ -1,12 +1,9 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { removeFavoriteSchema } from "@src/user-routes/helpers/schemas";
 import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
-
-const removeFavoriteSchema = z.object({
-  link: z.string().trim().min(1, "link is required and must be a non-empty string.")
-});
 
 async function removeFavoriteHandler(req: Request, res: Response, next: NextFunction) {
   try {

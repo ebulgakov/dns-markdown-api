@@ -1,14 +1,18 @@
+import { cityQuerySchema } from "@src/analysis-routes/helpers/schemas";
 import { cacheAdd, cacheGet } from "@src/cache";
 import { Pricelist } from "@src/db/models/pricelist";
+import { z } from "zod";
 
 import type { PriceList as PriceListType, PriceListsArchiveCount } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function productsCountHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const cityRaw = req.query.city;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = cityQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     const key = `daily:analysis:products-count:${String(city)}`;
     const cached = await cacheGet<PriceListsArchiveCount[]>(key);

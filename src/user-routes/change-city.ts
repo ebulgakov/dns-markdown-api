@@ -1,12 +1,9 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { changeCitySchema } from "@src/user-routes/helpers/schemas";
 import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
-
-const changeCitySchema = z.object({
-  city: z.string().trim().min(1)
-});
 
 async function changeCityHandler(req: Request, res: Response, next: NextFunction) {
   try {

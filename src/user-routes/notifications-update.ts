@@ -1,16 +1,9 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { updateNotificationSchema } from "@src/user-routes/helpers/schemas";
 import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
-
-const updateNotificationSchema = z.object({
-  notifications: z.object({
-    updates: z.object({
-      enabled: z.boolean()
-    })
-  })
-});
 
 async function updateNotificationHandler(req: Request, res: Response, next: NextFunction) {
   try {

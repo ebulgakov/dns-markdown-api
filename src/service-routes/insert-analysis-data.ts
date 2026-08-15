@@ -1,17 +1,16 @@
 import { AnalysisData } from "@src/db/models/analysis-data";
+import { insertAnalysisDataBodySchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
-import type { AnalysisData as AnalysisDataType } from "@src/types/analysis-data";
 import type { NextFunction, Response, Request } from "express";
 
 async function insertAnalysisDataHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { analysisData } = req.body as {
-      analysisData: AnalysisDataType[];
-    };
-
-    if (!Array.isArray(analysisData) || analysisData.length === 0) {
-      return res.status(400).send("analysisData must be a non-empty array");
+    const validationResult = insertAnalysisDataBodySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
+    const { analysisData } = validationResult.data;
 
     await AnalysisData.insertMany(analysisData);
     res.sendStatus(201);

@@ -1,17 +1,16 @@
 import { AnalysisDiff } from "@src/db/models/analysis-diff";
+import { insertAnalysisDiffBodySchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
-import type { AnalysisDiff as AnalysisDiffType } from "@src/types/analysis-diff";
 import type { NextFunction, Response, Request } from "express";
 
 async function insertAnalysisDiffHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { diff } = req.body as {
-      diff: AnalysisDiffType[];
-    };
-
-    if (!Array.isArray(diff) || diff.length === 0) {
-      return res.status(400).send("diff must be a non-empty array");
+    const validationResult = insertAnalysisDiffBodySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
     }
+    const { diff } = validationResult.data;
 
     await AnalysisDiff.insertMany(diff);
     res.sendStatus(201);

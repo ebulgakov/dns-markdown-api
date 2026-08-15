@@ -1,14 +1,18 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { getLastPriceListFlat } from "@src/pricelist-routes/helpers/get-last-price-list";
+import { cityQuerySchema } from "@src/products-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { Goods } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function mostDiscountedProductsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const cityRaw = req.query.city;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = cityQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     const key = `daily:products:most-discounted-products:${String(city)}`;
     const cached = await cacheGet<Goods[]>(key);

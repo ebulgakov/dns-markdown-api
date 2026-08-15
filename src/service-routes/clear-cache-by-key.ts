@@ -1,12 +1,16 @@
 import { cacheDelete, cacheKeys } from "@src/cache";
+import { clearCacheByKeyBodySchema } from "@src/service-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
 
 async function clearCacheByKeyHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { keys: rawKeys } = req.body as { keys?: unknown };
-    const keys = `${rawKeys ?? ""}`.trim();
-    if (!keys?.trim()) return res.status(400).send("keys is required");
+    const validationResult = clearCacheByKeyBodySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { keys } = validationResult.data;
 
     const foundKeys = await cacheKeys(keys);
     await Promise.all(

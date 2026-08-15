@@ -1,12 +1,9 @@
 import { getAuth } from "@clerk/express";
 import { User } from "@src/db/models/user";
+import { toggleShownBoughtFavoritesSchema } from "@src/user-routes/helpers/schemas";
 import { z } from "zod";
 
 import type { NextFunction, Request, Response } from "express";
-
-const toggleShownBoughtFavoritesSchema = z.object({
-  status: z.boolean()
-});
 
 async function toggleShownBoughtFavoritesHandler(req: Request, res: Response, next: NextFunction) {
   try {
