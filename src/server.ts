@@ -72,9 +72,11 @@ app.use("/api/analysis", analysisRoutes);
 app.use("/api/llm", llmRoutes);
 app.use("/api/user", userActionsRoutes);
 
-// API docs (Swagger UI). Available in development only: the shared-secret header
-// authPublicMiddleware expects can't be set via plain browser navigation, so gating
-// on it here would make the page unreachable from a browser entirely.
+// API docs (Swagger UI). The page itself is static (spec embedded inline); actual
+// /api calls made via "Try it out" still require X-Internal-API-Secret, entered
+// through the Authorize dialog. Access to this URL in production relies on
+// Vercel Deployment Protection rather than app-level auth, since a custom header
+// can't gate a plain browser page load.
 app.use(
   "/docs",
   helmet({
@@ -86,10 +88,6 @@ app.use(
       }
     }
   }),
-  (_req: Request, res: Response, next: NextFunction) => {
-    if (isDev()) return next();
-    return res.status(404).end();
-  },
   swaggerUi.serve,
   swaggerUi.setup(openApiSpec)
 );
