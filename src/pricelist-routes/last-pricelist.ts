@@ -1,14 +1,18 @@
 import { cacheAdd, cacheGet } from "@src/cache";
 import { getLastPriceListWithDates } from "@src/pricelist-routes/helpers/get-last-price-list.ts";
+import { lastPriceListQuerySchema } from "@src/pricelist-routes/helpers/schemas";
+import { z } from "zod";
 
 import type { PriceList as PriceListType } from "@src/types/pricelist";
 import type { NextFunction, Request, Response } from "express";
 
 async function lastPriceListHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const cityRaw = req.query.city;
-    const city = `${cityRaw ?? ""}`.trim();
-    if (!city) return res.status(400).send("city is required");
+    const validationResult = lastPriceListQuerySchema.safeParse(req.query);
+    if (!validationResult.success) {
+      return res.status(400).json({ errors: z.prettifyError(validationResult.error) });
+    }
+    const { city } = validationResult.data;
 
     const key = `daily:pricelist:last:${String(city)}`;
     const cached = await cacheGet<PriceListType>(key);
