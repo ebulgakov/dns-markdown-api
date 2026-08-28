@@ -29,7 +29,7 @@ async function allAnalysisDiffsHandler(req: Request, res: Response, next: NextFu
     const seenDays = new Set<string>();
 
     diffs.forEach(diff => {
-      const day = diff.dateAdded.slice(0, 10); // 2026-08-28T08:18:16.706Z - get only date
+      const day = new Date(diff.dateAdded).toISOString().slice(0, 10); // 2026-08-28T08:18:16.706Z - get only date
       if (seenDays.has(day)) return;
       seenDays.add(day);
 
