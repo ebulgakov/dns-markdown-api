@@ -26,8 +26,13 @@ async function allAnalysisDiffsHandler(req: Request, res: Response, next: NextFu
       .exec()) as AnalysisDiffType[];
 
     const report: AnalysisDiffReport[] = [];
+    const seenDays = new Set<string>();
 
     diffs.forEach(diff => {
+      const day = diff.dateAdded.slice(0, 10); // 2026-08-28T08:18:16.706Z - get only date
+      if (seenDays.has(day)) return;
+      seenDays.add(day);
+
       report.push({
         city: city,
         dateAdded: diff.dateAdded,
